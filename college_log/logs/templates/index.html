@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>College Complaint System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+        }
+        form {
+            background: #fff;
+            padding: 15px;
+            margin: auto;
+            width: 400px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        select, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #218838;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Submit a Complaint</h1>
+    <form method="POST">
+        {% csrf_token %}
+        <label for="device">Device:</label>
+        <select name="device" id="device" required>
+            <option value="">-- Select Device --</option>
+            {% for device in devices %}
+                <option value="{{ device.id }}">{{ device.name }} - {{ device.device_type }} ({{ device.location }})</option>
+            {% endfor %}
+        </select>
+
+        <label for="description">Issue Description:</label>
+        <textarea name="description" id="description" rows="4" required></textarea>
+
+    <button type="submit">Submit Log</button>
+    </form>
+</body>
+</html>
