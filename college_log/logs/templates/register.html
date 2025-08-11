@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+    <style>
+        body {
+            background: #f4f4f4;
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 32px 28px 24px 28px;
+            border-radius: 10px;
+            box-shadow: 0 0 16px rgba(0,0,0,0.12);
+            width: 350px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 18px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input, select {
+            padding: 10px;
+            margin-bottom: 14px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+        }
+        button {
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .switch-link {
+            display: block;
+            text-align: center;
+            margin-top: 8px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .switch-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if form.errors %}
+                <div style="color: #b94a48; background: #f2dede; border: 1px solid #ebccd1; padding: 10px; border-radius: 5px; margin-bottom: 12px; text-align: center;">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            {{ error }}<br>
+                        {% endfor %}
+                    {% endfor %}
+                    {% for error in form.non_field_errors %}
+                        {{ error }}<br>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <button type="submit">Register</button>
+        </form>
+        <a class="switch-link" href="{% url 'login' %}">Already have an account? Login</a>
+    </div>
+</body>
+</html>

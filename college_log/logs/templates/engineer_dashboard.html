@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Engineer Dashboard</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background: #f4f6fb;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .navbar {
+            background: #232f3e;
+            color: #fff;
+            padding: 18px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.7rem;
+            letter-spacing: 1px;
+        }
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            background: #e74c3c;
+            padding: 7px 18px;
+            border-radius: 5px;
+            transition: background 0.2s;
+        }
+        .navbar a:hover {
+            background: #c0392b;
+        }
+        .container {
+            max-width: 950px;
+            margin: 32px auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 32px 36px 28px 36px;
+        }
+        h2 {
+            color: #232f3e;
+            margin-bottom: 18px;
+            font-size: 2rem;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 18px;
+        }
+        th, td {
+            padding: 12px 10px;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: left;
+        }
+        th {
+            background: #f4f6fb;
+            color: #232f3e;
+            font-size: 1.05rem;
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        .status-open {
+            color: #e67e22;
+            font-weight: bold;
+        }
+        .status-closed {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        .comment-section {
+            margin-top: 8px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 10px 14px;
+        }
+        .comment {
+            margin-bottom: 6px;
+            padding: 7px 10px;
+            background: #eef2f7;
+            border-radius: 5px;
+            font-size: 0.97rem;
+        }
+        .comment .actions {
+            float: right;
+        }
+        .add-comment-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .add-comment-form input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .add-comment-form button {
+            background: #232f3e;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .add-comment-form button:hover {
+            background: #34495e;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Engineer Dashboard</h1>
+        <div>
+            <a href="{% url 'logout' %}">Logout</a>
+        </div>
+    </div>
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div style="background:#eafaf1;color:#1e824c;padding:10px 16px;border-radius:6px;margin-bottom:14px;font-size:1.05em;">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+        <h2>All Reported Issues</h2>
+        <table>
+            <tr>
+                <th>Device</th>
+                <th>Description</th>
+                <th>Status</th>
+                <th>Date</th>
+                <th>Comments</th>
+            </tr>
+            {% for issue in issues %}
+            <tr>
+                <td>{{ issue.device_type }}</td>
+                <td>{{ issue.description }}</td>
+                <td class="status-{{ issue.status|lower }}">{{ issue.status|title }}</td>
+                <td>{{ issue.created_at|date:"M d, Y H:i" }}</td>
+                <td>
+                    <div class="comment-section">
+                        {% for comment in issue.comments.all|slice:':5' %}
+                            {% if comment.engineer == user %}
+                                <div class="comment">
+                                    {% if request.GET.edit_id and request.GET.edit_id|add:'' == comment.id|stringformat:'s' %}
+                                        <form method="post" class="add-comment-form" action="?issue_id={{ issue.id }}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="edit_id" value="{{ comment.id }}">
+                                            <input type="text" name="edit_text" value="{{ comment.text }}" required>
+                                            <button type="submit">Save</button>
+                                            <a href="{% url 'engineer_dashboard' %}" style="color:#e74c3c; margin-left:8px;">Cancel</a>
+                                        </form>
+                                    {% else %}
+                                        <b>You:</b> {{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
+                                        <span class="actions">
+                                            <form method="post" style="display:inline;" action="?issue_id={{ issue.id }}">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="edit_id" value="{{ comment.id }}">
+                                                <button type="submit" style="background:none;border:none;color:#e67e22;cursor:pointer;">Edit</button>
+                                            </form>
+                                            <form method="post" style="display:inline;" action="?issue_id={{ issue.id }}" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="delete_id" value="{{ comment.id }}">
+                                                <button type="submit" style="background:none;border:none;color:#e74c3c;cursor:pointer;">Delete</button>
+                                            </form>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% empty %}
+                            <span style="color:#aaa;">No comments yet.</span>
+                        {% endfor %}
+                        {% if issue.comments.count > 5 %}
+                            <span style="color:#888;font-size:0.95em;">Showing latest 5 comments.</span>
+                        {% endif %}
+        {% if issues.has_other_pages %}
+        <div style="text-align:center;margin-top:18px;">
+            {% if issues.has_previous %}
+                <a href="?page={{ issues.previous_page_number }}" style="margin-right:10px;">&laquo; Previous</a>
+            {% endif %}
+            <span>Page {{ issues.number }} of {{ issues.paginator.num_pages }}</span>
+            {% if issues.has_next %}
+                <a href="?page={{ issues.next_page_number }}" style="margin-left:10px;">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
+                        <form class="add-comment-form" method="post" action="?issue_id={{ issue.id }}">
+                            {% csrf_token %}
+                            <input type="text" name="comment" placeholder="Add a comment..." required>
+                            <button type="submit">Add</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>

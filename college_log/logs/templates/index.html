@@ -47,15 +47,15 @@
         <label for="device">Device:</label>
         <select name="device" id="device" required>
             <option value="">-- Select Device --</option>
-            {% for device in devices %}
-                <option value="{{ device.id }}">{{ device.name }} - {{ device.device_type }} ({{ device.location }})</option>
+            {% for device in device_types %}
+                <option value="{{ device }}">{{ device }}</option>
             {% endfor %}
         </select>
 
         <label for="description">Issue Description:</label>
         <textarea name="description" id="description" rows="4" required></textarea>
 
-    <button type="submit">Submit Log</button>
+        <button type="submit">Submit Log</button>
     </form>
 </body>
 </html>
