@@ -1,61 +1,78 @@
+{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>College Complaint System</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Log System</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: #f4f4f4;
-            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
         }
-        h1 {
-            text-align: center;
-            color: #444;
-        }
-        form {
-            background: #fff;
-            padding: 15px;
-            margin: auto;
-            width: 400px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        select, textarea, button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 8px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-        button {
-            background: #28a745;
-            color: white;
-            border: none;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #218838;
-            cursor: pointer;
+        .navbar {
+            background: rgba(255, 255, 255, 0.1) !important;
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
 <body>
-    <h1>Submit a Complaint</h1>
-    <form method="POST">
-        {% csrf_token %}
-        <label for="device">Device:</label>
-        <select name="device" id="device" required>
-            <option value="">-- Select Device --</option>
-            {% for device in device_types %}
-                <option value="{{ device }}">{{ device }}</option>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{% url 'home' %}">College Log System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <span class="navbar-text mr-3">Welcome, {{ user.username }} ({{ user.userprofile.role|title }})</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-danger" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="btn btn-primary mr-2" href="{% url 'login' %}">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-secondary" href="{% url 'register' %}">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}" role="alert">
+                    {{ message }}
+                </div>
             {% endfor %}
-        </select>
+        {% endif %}
+        
+        <div class="jumbotron">
+            <h1 class="display-4">Welcome to the College Log System</h1>
+            <p class="lead">This system allows you to report and track technical issues in the college.</p>
+            <hr class="my-4">
+            {% if user.is_authenticated %}
+                <p>You are logged in as a {{ user.userprofile.role|title }}.</p>
+                <a class="btn btn-primary btn-lg" href="{% if user.userprofile.role == 'engineer' %}{% url 'engineer_dashboard' %}{% else %}{% url 'dept_head_dashboard' %}{% endif %}" role="button">Go to Dashboard</a>
+            {% else %}
+                <p>Please login or register to continue.</p>
+                <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>
+            {% endif %}
+        </div>
 
-        <label for="description">Issue Description:</label>
-        <textarea name="description" id="description" rows="4" required></textarea>
+    </div>
 
-        <button type="submit">Submit Log</button>
-    </form>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

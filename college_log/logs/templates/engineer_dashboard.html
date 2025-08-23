@@ -148,11 +148,12 @@
                 <td>
                     <div class="comment-section">
                         {% for comment in issue.comments.all|slice:':5' %}
-                            {% if comment.engineer == user %}
-                                <div class="comment">
-                                    {% if request.GET.edit_id and request.GET.edit_id|add:'' == comment.id|stringformat:'s' %}
-                                        <form method="post" class="add-comment-form" action="?issue_id={{ issue.id }}">
+                            <div class="comment">
+                                {% if comment.engineer == user %}
+                                    {% if request.POST.edit_id and request.POST.edit_id|add:'' == comment.id|stringformat:'s' %}
+                                        <form method="post" class="add-comment-form" action="{% url 'engineer_dashboard' %}">
                                             {% csrf_token %}
+                                            <input type="hidden" name="issue_id" value="{{ issue.id }}">
                                             <input type="hidden" name="edit_id" value="{{ comment.id }}">
                                             <input type="text" name="edit_text" value="{{ comment.text }}" required>
                                             <button type="submit">Save</button>
@@ -161,42 +162,40 @@
                                     {% else %}
                                         <b>You:</b> {{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
                                         <span class="actions">
-                                            <form method="post" style="display:inline;" action="?issue_id={{ issue.id }}">
+                                            <form method="post" style="display:inline;" action="{% url 'engineer_dashboard' %}">
                                                 {% csrf_token %}
+                                                <input type="hidden" name="issue_id" value="{{ issue.id }}">
                                                 <input type="hidden" name="edit_id" value="{{ comment.id }}">
                                                 <button type="submit" style="background:none;border:none;color:#e67e22;cursor:pointer;">Edit</button>
                                             </form>
-                                            <form method="post" style="display:inline;" action="?issue_id={{ issue.id }}" onsubmit="return confirm('Are you sure you want to delete this comment?');">
+                                            <form method="post" style="display:inline;" action="{% url 'engineer_dashboard' %}" onsubmit="return confirm('Are you sure you want to delete this comment?');">
                                                 {% csrf_token %}
+                                                <input type="hidden" name="issue_id" value="{{ issue.id }}">
                                                 <input type="hidden" name="delete_id" value="{{ comment.id }}">
                                                 <button type="submit" style="background:none;border:none;color:#e74c3c;cursor:pointer;">Delete</button>
                                             </form>
                                         </span>
                                     {% endif %}
-                                </div>
-                            {% endif %}
+                                {% else %}
+                                    <b>{{ comment.engineer.email }}:</b> {{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
+                                {% endif %}
+                            </div>
                         {% empty %}
                             <span style="color:#aaa;">No comments yet.</span>
                         {% endfor %}
                         {% if issue.comments.count > 5 %}
                             <span style="color:#888;font-size:0.95em;">Showing latest 5 comments.</span>
                         {% endif %}
-        {% if issues.has_other_pages %}
-        <div style="text-align:center;margin-top:18px;">
-            {% if issues.has_previous %}
-                <a href="?page={{ issues.previous_page_number }}" style="margin-right:10px;">&laquo; Previous</a>
-            {% endif %}
-            <span>Page {{ issues.number }} of {{ issues.paginator.num_pages }}</span>
-            {% if issues.has_next %}
-                <a href="?page={{ issues.next_page_number }}" style="margin-left:10px;">Next &raquo;</a>
-            {% endif %}
-        </div>
-        {% endif %}
-                        <form class="add-comment-form" method="post" action="?issue_id={{ issue.id }}">
-                            {% csrf_token %}
-                            <input type="text" name="comment" placeholder="Add a comment..." required>
-                            <button type="submit">Add</button>
-                        </form>
+                        {% if issue.status != 'closed' and issue.status != 'completed' %}
+                            <form class="add-comment-form" method="post" action="{% url 'engineer_dashboard' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="issue_id" value="{{ issue.id }}">
+                                <input type="text" name="comment" placeholder="Add a comment..." required>
+                                <button type="submit">Add</button>
+                            </form>
+                        {% else %}
+                            <p style="color:#888;margin-top:10px;">This issue is closed. No more comments can be added.</p>
+                        {% endif %}
                     </div>
                 </td>
             </tr>

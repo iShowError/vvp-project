@@ -102,6 +102,49 @@
         .close-btn:hover {
             background: #c0392b;
         }
+        .issue-form {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .issue-form h2 {
+            margin-top: 0;
+            color: #232f3e;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .issue-form p {
+            margin-bottom: 10px;
+        }
+        .issue-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .issue-form input[type="text"],
+        .issue-form textarea,
+        .issue-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .issue-form .btn-submit {
+            background: #232f3e;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .issue-form .btn-submit:hover {
+            background: #34495e;
+        }
     </style>
 </head>
 <body>
@@ -117,6 +160,17 @@
                 <div style="background:#eafaf1;color:#1e824c;padding:10px 16px;border-radius:6px;margin-bottom:14px;font-size:1.05em;">{{ message }}</div>
             {% endfor %}
         {% endif %}
+
+        <div class="issue-form">
+            <h2>Submit a New Issue</h2>
+            <form method="post" action="{% url 'dept_head_dashboard' %}">
+                {% csrf_token %}
+                <input type="hidden" name="issue_submit" value="1">
+                {{ form.as_p }}
+                <button type="submit" name="issue_submit" class="btn-submit">Submit Issue</button>
+            </form>
+        </div>
+
         <h2>Your Reported Issues</h2>
         <table>
             <tr>
@@ -160,8 +214,10 @@
                 </td>
                 <td>
                     {% if issue.status == 'open' %}
-                        <form method="post" action="?close_issue_id={{ issue.id }}">
+                        <form method="post" action="{% url 'dept_head_dashboard' %}">
                             {% csrf_token %}
+                            <input type="hidden" name="update_issue_id" value="{{ issue.id }}">
+                            <input type="hidden" name="status" value="completed">
                             <button class="close-btn" type="submit">Close Issue</button>
                         </form>
                     {% else %}
