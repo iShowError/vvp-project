@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,6 +124,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
@@ -161,3 +166,108 @@ LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_LOGIN_CANCELLED_URL = '/login/'
+
+# Jazzmin configuration
+JAZZMIN_SETTINGS = {
+    "site_title": "VVP Admin",
+    "site_header": "VVP Admin Panel",
+    "site_brand": "VVP College",
+    "login_logo": None,
+    "login_logo_dark": None,
+    "site_icon": None,
+    "welcome_sign": "Welcome to VVP College Complaint System",
+    "copyright": "Copyright © 2025 VVP College",
+    "search_model": ["logs.Issue", "logs.Comment", "auth.User"],
+    "user_avatar": None,
+    
+    # Top Menu
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Site", "url": "/", "new_window": True},
+    ],
+    
+    # User Menu on the right side of the header
+    "usermenu_links": [
+        {"name": "Site", "url": "/", "new_window": True},
+        {"model": "auth.user"}
+    ],
+    
+    # Side Menu ordering
+    "order_with_respect_to": ["logs", "auth", "allauth"],
+    
+    # Custom links to append to app groups
+    "custom_links": {
+        "logs": [{
+            "name": "View Dashboard", 
+            "url": "/", 
+            "icon": "fas fa-tachometer-alt",
+            "permissions": ["logs.view_issue"]
+        }]
+    },
+    
+    # Icons for apps and models
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "logs.Issue": "fas fa-exclamation-triangle",
+        "logs.Comment": "fas fa-comments",
+        "logs.UserProfile": "fas fa-user-tag",
+        "logs.Device": "fas fa-desktop",
+        "allauth.socialaccount.SocialAccount": "fab fa-google",
+        "allauth.socialaccount.SocialApp": "fas fa-cog",
+        "allauth.socialaccount.SocialToken": "fas fa-key",
+    },
+    
+    # Default icon parents
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    
+    # Related modal
+    "related_modal_active": False,
+    
+    # UI Customizer
+    "custom_css": "admin/css/custom_admin.css",
+    "custom_js": None,
+    
+    # Whether to show the UI customizer
+    "show_ui_builder": False,
+    
+    "changeform_format": "horizontal_tabs",
+    "changeform_format_overrides": {"auth.user": "collapsible", "auth.group": "vertical_tabs"},
+    
+    # Add a language dropdown into the admin
+    "language_chooser": False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar_small_text": False,
+    "footer_small_text": False,
+    "body_small_text": False,
+    "brand_small_text": False,
+    "brand_colour": "navbar-primary",
+    "accent": "accent-primary",
+    "navbar": "navbar-primary navbar-dark",
+    "no_navbar_border": False,
+    "navbar_fixed": True,
+    "layout_boxed": False,
+    "footer_fixed": False,
+    "sidebar_fixed": True,
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": False,
+    "sidebar_disable_expand": False,
+    "sidebar_nav_child_indent": False,
+    "sidebar_nav_compact_style": False,
+    "sidebar_nav_legacy_style": False,
+    "sidebar_nav_flat_style": False,
+    "theme": "cerulean",
+    "dark_mode_theme": None,
+    "button_classes": {
+        "primary": "btn-primary",
+        "secondary": "btn-secondary",
+        "info": "btn-info",
+        "warning": "btn-warning",
+        "danger": "btn-danger",
+        "success": "btn-success"
+    }
+}

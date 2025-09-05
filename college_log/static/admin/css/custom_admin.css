@@ -1,0 +1,206 @@
+/* Custom CSS for VVP College Admin Panel */
+
+/* Hide broken image icons */
+.login-logo img:not([src]), 
+.login-logo img[src=""], 
+.navbar-brand img:not([src]),
+.navbar-brand img[src=""] {
+    display: none !important;
+}
+
+/* Ensure login logo text is prominent when no image */
+.login-logo {
+    text-align: center !important;
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+    color: #2c3e50 !important;
+    margin-bottom: 1.5rem !important;
+    text-decoration: none !important;
+}
+
+.login-logo:hover {
+    text-decoration: none !important;
+    color: #34495e !important;
+}
+
+/* Login page improvements */
+.login-card-body {
+    border-radius: 10px !important;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+}
+
+.login-box {
+    width: 400px !important;
+}
+
+/* Fix navbar brand spacing and ensure full visibility */
+.navbar-brand {
+    font-size: 1rem !important;
+    font-weight: 600 !important;
+    padding: 0.5rem 0.8rem !important;
+    white-space: nowrap !important;
+    overflow: visible !important;
+    text-overflow: unset !important;
+    max-width: none !important;
+    width: auto !important;
+}
+
+.main-header .navbar-brand {
+    max-width: 250px !important;
+    overflow: visible !important;
+}
+
+/* Ensure navbar has enough space */
+.main-header .navbar {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* Responsive navbar brand */
+@media (max-width: 992px) {
+    .navbar-brand {
+        font-size: 0.9rem !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 0.8rem !important;
+        padding: 0.5rem !important;
+    }
+}
+
+/* Fix recent actions text wrapping */
+.recent-actions-module ul li {
+    word-wrap: break-word !important;
+    white-space: normal !important;
+    line-height: 1.4 !important;
+    padding: 8px 12px !important;
+}
+
+.recent-actions-module ul li a {
+    display: block !important;
+    word-break: break-word !important;
+    white-space: normal !important;
+}
+
+/* Improve navbar brand spacing */
+.navbar-brand {
+    font-size: 1.1rem !important;
+    font-weight: 500 !important;
+    padding: 0.75rem 1rem !important;
+}
+
+/* Better sidebar navigation */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link {
+    padding: 0.5rem 1rem !important;
+}
+
+/* Improve dashboard cards */
+.card {
+    border-radius: 8px !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+    color: white !important;
+    border-radius: 8px 8px 0 0 !important;
+}
+
+/* Better button styling */
+.btn {
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+}
+
+/* Improve table styling */
+.table {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+}
+
+.table th {
+    background-color: #f8f9fa !important;
+    border-bottom: 2px solid #dee2e6 !important;
+    font-weight: 600 !important;
+}
+
+/* Better form styling */
+.form-control {
+    border-radius: 6px !important;
+    border: 1px solid #ced4da !important;
+}
+
+.form-control:focus {
+    border-color: #80bdff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25) !important;
+}
+
+/* Improve alert styling */
+.alert {
+    border-radius: 6px !important;
+    border: none !important;
+}
+
+/* Better pagination */
+.pagination .page-link {
+    border-radius: 6px !important;
+    margin: 0 2px !important;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .navbar-brand {
+        font-size: 1rem !important;
+    }
+    
+    .recent-actions-module ul li {
+        font-size: 0.9rem !important;
+        padding: 6px 8px !important;
+    }
+}
+
+/* Custom dashboard improvements */
+.content-wrapper {
+    background-color: #f8f9fa !important;
+}
+
+.main-header {
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+/* Better search box styling */
+.form-control[type="search"] {
+    background-color: rgba(255,255,255,0.9) !important;
+    border: 1px solid rgba(255,255,255,0.5) !important;
+    color: #495057 !important;
+}
+
+.form-control[type="search"]:focus {
+    background-color: white !important;
+    border-color: #80bdff !important;
+}
+
+/* Improve icon alignment */
+.nav-icon {
+    margin-right: 0.5rem !important;
+}
+
+/* Better spacing for admin cards */
+.card-body {
+    padding: 1.5rem !important;
+}
+
+/* Improve breadcrumb */
+.breadcrumb {
+    background-color: transparent !important;
+    padding: 0.5rem 0 !important;
+    margin-bottom: 1rem !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: ">" !important;
+    color: #6c757d !important;
+}
