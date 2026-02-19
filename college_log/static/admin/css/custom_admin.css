@@ -72,16 +72,16 @@
 
 /* Fix recent actions text wrapping */
 .recent-actions-module ul li {
-    word-wrap: break-word !important;
     white-space: normal !important;
     line-height: 1.4 !important;
     padding: 8px 12px !important;
 }
 
 .recent-actions-module ul li a {
-    display: block !important;
-    word-break: break-word !important;
+    display: inline !important;
     white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
 }
 
 /* Improve navbar brand spacing */
@@ -138,7 +138,6 @@
 }
 
 .recent-actions-module ul li {
-    word-wrap: break-word !important;
     white-space: normal !important;
     line-height: 1.4 !important;
     padding: 8px 12px !important;
@@ -147,12 +146,27 @@
 }
 
 .recent-actions-module ul li a {
-    display: block !important;
-    word-break: break-word !important;
+    display: inline !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
     white-space: normal !important;
     text-overflow: unset !important;
     overflow: visible !important;
     max-width: none !important;
+}
+
+.recent-actions-module .timeline-item .timeline-header,
+.recent-actions-module .timeline-item .timeline-body {
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
+}
+
+.recent-actions-module .timeline-item .timeline-header a {
+    display: inline !important;
+    white-space: normal !important;
+    word-break: normal !important;
+    overflow-wrap: break-word !important;
 }
 
 /* Fix specific text truncation issues */
@@ -385,9 +399,7 @@ input.form-control {
 
 /* Fix Dashboard title and breadcrumb alignment */
 .content-header {
-    display: flex !important;
-    align-items: center !important;
-    gap: 1rem !important;
+    display: block !important;
 }
 
 .content-header h1 {
@@ -407,6 +419,10 @@ input.form-control {
     padding: 15px 15px 0 15px !important;
 }
 
+.content-wrapper .content-header .row {
+    align-items: center !important;
+}
+
 .content-wrapper .content-header h1 {
     font-size: 1.8rem !important;
     font-weight: 600 !important;
@@ -418,7 +434,7 @@ input.form-control {
 
 .content-wrapper .content-header .breadcrumb {
     font-size: 1.4rem !important;
-    align-self: baseline !important;
+    align-self: center !important;
     line-height: 1.2 !important;
     margin-top: 0 !important;
     margin-bottom: 0 !important;
@@ -431,7 +447,7 @@ input.form-control {
     line-height: 1.2 !important;
     padding: 0 !important;
     margin: 0 !important;
-    margin-top: 4px !important;
+    margin-top: 0 !important;
 }
 
 .content-wrapper .content-header .breadcrumb .breadcrumb-item.active {
@@ -441,7 +457,7 @@ input.form-control {
     line-height: 1.2 !important;
     padding: 0 !important;
     margin: 0 !important;
-    margin-top: 4px !important;
+    margin-top: 0 !important;
 }
 
 /* Dashboard module improvements */
