@@ -22,6 +22,7 @@ def home(request):
             return redirect('engineer_dashboard')
         elif profile.role == 'dept_head':
             return redirect('dept_head_dashboard')
+        return redirect('logout')
     except UserProfile.DoesNotExist:
         return redirect('login')
 
@@ -63,8 +64,6 @@ def logout_view(request):
 
 @login_required
 def engineer_dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
     try:
         profile = request.user.userprofile
     except UserProfile.DoesNotExist:
@@ -120,8 +119,6 @@ def engineer_dashboard(request):
 
 @login_required
 def dept_head_dashboard(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
     try:
         profile = request.user.userprofile
     except UserProfile.DoesNotExist:
