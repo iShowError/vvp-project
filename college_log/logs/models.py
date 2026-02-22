@@ -110,6 +110,8 @@ class Log(models.Model):
     def save(self, *args, **kwargs):
         if self.status == "Closed" and not self.closed_at:
             self.closed_at = timezone.now()
+        elif self.status != "Closed":
+            self.closed_at = None
         super().save(*args, **kwargs)
     
     class Meta:
