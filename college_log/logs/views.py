@@ -1,3 +1,5 @@
+import logging
+
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
@@ -7,10 +9,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from django.db import IntegrityError
+from django.db import IntegrityError, DatabaseError, transaction
 from .models import Issue, Comment, UserProfile, Device, Log
 from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm, CommentForm
 from django.utils import timezone
+
+
+logger = logging.getLogger(__name__)
 
 def home(request):
     if not request.user.is_authenticated:
@@ -30,13 +35,32 @@ def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
+            email = form.cleaned_data['email'].strip().lower()
             password = form.cleaned_data['password']
             role = form.cleaned_data['role']
-            user = User.objects.create_user(username=email, email=email, password=password)
-            UserProfile.objects.create(user=user, role=role)
-            messages.success(request, 'Registration successful! Please login.')
-            return redirect('login')
+
+            try:
+                with transaction.atomic():
+                    user = User.objects.create_user(
+                        username=email,
+                        email=email,
+                        password=password,
+                    )
+                    UserProfile.objects.create(user=user, role=role)
+            except IntegrityError:
+                logger.warning(
+                    "Registration conflict for email=%s; likely duplicate submission or race condition.",
+                    email,
+                )
+                form.add_error('email', 'An account with this email already exists. Please log in instead.')
+                messages.error(request, 'We could not create your account because this email is already registered.')
+            except DatabaseError:
+                logger.exception("Registration failed due to a database error for email=%s", email)
+                form.add_error(None, 'We could not create your account right now. Please try again in a moment.')
+                messages.error(request, 'We could not create your account right now. Please try again in a moment.')
+            else:
+                messages.success(request, 'Registration successful! Please login.')
+                return redirect('login')
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
@@ -46,7 +70,7 @@ def login_view(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
         if form.is_valid():
-            email = form.cleaned_data['email']
+            email = form.cleaned_data['email'].strip().lower()
             password = form.cleaned_data['password']
             user = authenticate(request, username=email, password=password)
             if user is not None:
