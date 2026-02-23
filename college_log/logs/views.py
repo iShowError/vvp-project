@@ -1,5 +1,7 @@
 import logging
 
+from django.conf import settings
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
@@ -16,6 +18,37 @@ from django.utils import timezone
 
 
 logger = logging.getLogger(__name__)
+
+
+def _get_client_ip(request):
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR', 'unknown')
+
+
+def _login_throttle_key(email, ip_address):
+    return f"login_fail:{email}:{ip_address}"
+
+
+def _is_login_locked(email, ip_address):
+    max_attempts = getattr(settings, 'LOGIN_MAX_ATTEMPTS', 5)
+    key = _login_throttle_key(email, ip_address)
+    failures = cache.get(key, 0)
+    return failures >= max_attempts
+
+
+def _record_failed_login(email, ip_address):
+    lockout_seconds = getattr(settings, 'LOGIN_LOCKOUT_SECONDS', 900)
+    key = _login_throttle_key(email, ip_address)
+    failures = cache.get(key, 0) + 1
+    cache.set(key, failures, timeout=lockout_seconds)
+    return failures
+
+
+def _clear_failed_logins(email, ip_address):
+    key = _login_throttle_key(email, ip_address)
+    cache.delete(key)
 
 def home(request):
     if not request.user.is_authenticated:
@@ -72,12 +105,25 @@ def login_view(request):
         if form.is_valid():
             email = form.cleaned_data['email'].strip().lower()
             password = form.cleaned_data['password']
+            ip_address = _get_client_ip(request)
+
+            if _is_login_locked(email, ip_address):
+                error_message = 'Too many failed login attempts. Please try again in 15 minutes.'
+                logger.warning('Blocked login attempt for email=%s from ip=%s due to lockout.', email, ip_address)
+                return render(request, 'login.html', {'form': form, 'error_message': error_message})
+
             user = authenticate(request, username=email, password=password)
             if user is not None:
+                _clear_failed_logins(email, ip_address)
                 login(request, user)
                 return redirect('home')
             else:
-                error_message = "The email or password you entered is incorrect. Please try again."
+                failures = _record_failed_login(email, ip_address)
+                max_attempts = getattr(settings, 'LOGIN_MAX_ATTEMPTS', 5)
+                if failures >= max_attempts:
+                    error_message = 'Too many failed login attempts. Please try again in 15 minutes.'
+                else:
+                    error_message = "The email or password you entered is incorrect. Please try again."
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form, 'error_message': error_message})
