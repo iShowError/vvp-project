@@ -64,9 +64,9 @@ def home(request):
     
     try:
         profile = request.user.userprofile
-        if profile.role == 'engineer':
+        if profile.role.lower() == 'engineer':
             return redirect('engineer_dashboard')
-        elif profile.role == 'dept_head':
+        elif profile.role.lower() == 'dept_head':
             return redirect('dept_head_dashboard')
         return redirect('logout')
     except UserProfile.DoesNotExist:

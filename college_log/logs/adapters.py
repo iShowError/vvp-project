@@ -12,8 +12,16 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
             return
 
         try:
-            customer = User.objects.get(email=user.email)
+            # Use case-insensitive lookup for existing user
+            customer = User.objects.get(email__iexact=user.email)
             sociallogin.connect(request, customer)
+            # It's important to raise ImmediateHttpResponse to prevent allauth
+            # from continuing to process the login and potentially creating a new user.
+            # Here we'll just redirect to a page that can inform the user.
+            # For a better UX, you might want to log them in directly.
+            messages.info(request, f"Your social account has been connected to your existing account for {customer.email}.")
+            raise ImmediateHttpResponse(redirect('login'))
+
         except User.DoesNotExist:
             pass
 

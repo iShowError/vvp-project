@@ -62,7 +62,7 @@
             <hr class="my-4">
             {% if user.is_authenticated %}
                 <p>You are logged in as a {{ user.userprofile.role|title }}.</p>
-                <a class="btn btn-primary btn-lg" href="{% if user.userprofile.role == 'engineer' %}{% url 'engineer_dashboard' %}{% else %}{% url 'dept_head_dashboard' %}{% endif %}" role="button">Go to Dashboard</a>
+                <a class="btn btn-primary btn-lg" href="{% if user.userprofile.role|lower == 'engineer' %}{% url 'engineer_dashboard' %}{% else %}{% url 'dept_head_dashboard' %}{% endif %}" role="button">Go to Dashboard</a>
             {% else %}
                 <p>Please login or register to continue.</p>
                 <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>

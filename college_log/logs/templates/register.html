@@ -125,8 +125,8 @@
                 <label for="id_role">Role</label>
                 <select name="role" id="id_role" required>
                     <option value="" {% if not form.data.role %}selected{% endif %}>---------</option>
-                    <option value="engineer" {% if form.data.role == 'engineer' %}selected{% endif %}>Engineer</option>
-                    <option value="dept_head" {% if form.data.role == 'dept_head' %}selected{% endif %}>Department Head</option>
+                    <option value="engineer" {% if form.data.role|lower == 'engineer' %}selected{% endif %}>Engineer</option>
+                    <option value="dept_head" {% if form.data.role|lower == 'dept_head' %}selected{% endif %}>Department Head</option>
                 </select>
             </div>
             <button type="submit" class="btn-submit">Register</button>
