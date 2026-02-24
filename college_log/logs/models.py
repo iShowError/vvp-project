@@ -43,7 +43,7 @@ class Issue(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="open")
-    dept_head = models.ForeignKey(User, on_delete=models.CASCADE, related_name="issues")
+    dept_head = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="issues")
     
     def __str__(self):
         return f"{self.device_type} - {self.status} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
@@ -58,13 +58,14 @@ class Issue(models.Model):
 
 class Comment(models.Model):
     issue = models.ForeignKey(Issue, on_delete=models.CASCADE, related_name="comments")
-    engineer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="engineer_comments")
+    engineer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="engineer_comments")
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"Comment by {self.engineer.email} on Issue #{self.issue.id}"
+        engineer_email = self.engineer.email if self.engineer else "Unknown Engineer"
+        return f"Comment by {engineer_email} on Issue #{self.issue.id}"
     
     class Meta:
         ordering = ['-created_at']
