@@ -3,6 +3,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
+# Shared choices
+DEVICE_TYPE_CHOICES = [
+    ("Computer", "Computer"),
+    ("Printer", "Printer"),
+    ("Projector", "Projector"),
+    ("Network Switch", "Network Switch"),
+    ("Access point", "Access point"),
+    ("Other", "Other"),
+]
+
 # Create your models here.
 
 class UserProfile(models.Model):
@@ -22,13 +32,7 @@ class UserProfile(models.Model):
         verbose_name_plural = "User Profiles"
 
 class Issue(models.Model):
-    DEVICE_TYPES = [
-        ("Computer", "Computer"),
-        ("Printer", "Printer"),
-        ("Projector", "Projector"),
-        ("Network Switch", "Network Switch"),
-        ("Access point", "Access point"),
-    ]
+    DEVICE_TYPES = DEVICE_TYPE_CHOICES
     
     STATUS_CHOICES = [
         ("open", "Open"),
@@ -73,12 +77,7 @@ class Comment(models.Model):
         verbose_name_plural = "Comments"
 
 class Device(models.Model):
-    DEVICE_TYPES = [
-        ("Computer", "Computer"),
-        ("Projector", "Projector"),
-        ("Printer", "Printer"),
-        ("Other", "Other"),
-    ]
+    DEVICE_TYPES = DEVICE_TYPE_CHOICES
     name = models.CharField(max_length=100)
     device_type = models.CharField(max_length=50, choices=DEVICE_TYPES)
     location = models.CharField(max_length=100)
