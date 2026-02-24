@@ -12,6 +12,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.db import IntegrityError, DatabaseError, transaction
+from django.db.models import Q
 from .models import Issue, Comment, UserProfile, Device, Log
 from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm, CommentForm
 from django.utils import timezone
@@ -49,6 +50,13 @@ def _record_failed_login(email, ip_address):
 def _clear_failed_logins(email, ip_address):
     key = _login_throttle_key(email, ip_address)
     cache.delete(key)
+
+
+def _engineer_visible_issues(user):
+    return Issue.objects.filter(
+        Q(status__in=['open', 'in_progress', 'resolved']) |
+        Q(comments__engineer=user)
+    ).distinct()
 
 def home(request):
     if not request.user.is_authenticated:
@@ -149,7 +157,7 @@ def engineer_dashboard(request):
         delete_id = request.POST.get('delete_id')
         
         if comment_text and issue_id:
-            issue = get_object_or_404(Issue, id=issue_id)
+            issue = get_object_or_404(_engineer_visible_issues(request.user), id=issue_id)
             if issue.status not in ['closed', 'completed']:
                 Comment.objects.create(issue=issue, engineer=request.user, text=comment_text)
                 messages.success(request, 'Comment added successfully.')
@@ -180,7 +188,7 @@ def engineer_dashboard(request):
             messages.success(request, 'Comment deleted successfully.')
             return redirect('engineer_dashboard')
 
-    issues_list = Issue.objects.all().order_by('-created_at')
+    issues_list = _engineer_visible_issues(request.user).order_by('-created_at')
     paginator = Paginator(issues_list, 5)  # 5 issues per page
     page_number = request.GET.get('page')
     issues = paginator.get_page(page_number)
