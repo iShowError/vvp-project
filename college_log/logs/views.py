@@ -18,6 +18,8 @@ from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm, Comm
 from django.utils import timezone
 
 
+ITEMS_PER_PAGE = 10
+
 logger = logging.getLogger(__name__)
 
 
@@ -196,7 +198,7 @@ def engineer_dashboard(request):
             return redirect('engineer_dashboard')
 
     issues_list = _engineer_visible_issues(request.user).order_by('-created_at')
-    paginator = Paginator(issues_list, 5)  # 5 issues per page
+    paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
     issues = paginator.get_page(page_number)
     return render(request, 'engineer_dashboard.html', {'issues': issues})
@@ -242,7 +244,7 @@ def dept_head_dashboard(request):
             return redirect('dept_head_dashboard')
 
     issues_list = Issue.objects.filter(dept_head=request.user).order_by('-created_at')
-    paginator = Paginator(issues_list, 5)  # 5 issues per page
+    paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
     issues = paginator.get_page(page_number)
     form = IssueForm()
