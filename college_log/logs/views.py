@@ -42,9 +42,16 @@ def _is_login_locked(email, ip_address):
 def _record_failed_login(email, ip_address):
     lockout_seconds = getattr(settings, 'LOGIN_LOCKOUT_SECONDS', 900)
     key = _login_throttle_key(email, ip_address)
-    failures = cache.get(key, 0) + 1
-    cache.set(key, failures, timeout=lockout_seconds)
-    return failures
+    # Atomically add key if not exists (returns True), otherwise create it
+    if cache.add(key, 1, timeout=lockout_seconds):
+        return 1
+    # If key exists, atomically increment
+    try:
+        return cache.incr(key)
+    except ValueError:
+        # Key might have expired between add() and incr()
+        cache.set(key, 1, timeout=lockout_seconds)
+        return 1
 
 
 def _clear_failed_logins(email, ip_address):
