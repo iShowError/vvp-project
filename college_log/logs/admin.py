@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from simple_history.admin import SimpleHistoryAdmin
 from .models import Device, Log, Issue, Comment, UserProfile
 
 # Inline for UserProfile to be edited alongside User
@@ -27,20 +28,20 @@ admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
 @admin.register(Device)
-class DeviceAdmin(admin.ModelAdmin):
+class DeviceAdmin(SimpleHistoryAdmin):
     list_display = ("id", "name", "device_type", "location")
     search_fields = ("name", "device_type", "location")
     list_filter = ("device_type",)
 
 @admin.register(Log)
-class LogAdmin(admin.ModelAdmin):
+class LogAdmin(SimpleHistoryAdmin):
     list_display = ("id", "device", "status", "created_at", "closed_at")
     list_filter = ("status", "device__device_type", "created_at")
     search_fields = ("description", "device__name")
     date_hierarchy = 'created_at'
 
 @admin.register(Issue)
-class IssueAdmin(admin.ModelAdmin):
+class IssueAdmin(SimpleHistoryAdmin):
     list_display = ("id", "device_type", "status", "dept_head_email", "created_at")
     list_filter = ("status", "device_type", "created_at")
     search_fields = ("description", "dept_head__email", "dept_head__username")
@@ -53,7 +54,7 @@ class IssueAdmin(admin.ModelAdmin):
     dept_head_email.short_description = 'Department Head'
 
 @admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
+class CommentAdmin(SimpleHistoryAdmin):
     list_display = ("id", "issue_short", "engineer", "text_preview", "created_at")
     list_filter = ("created_at", "updated_at", "engineer")
     search_fields = ("text", "engineer__email", "engineer__username", "issue__description")
