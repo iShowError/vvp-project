@@ -71,6 +71,10 @@ def home(request):
     if not request.user.is_authenticated:
         return redirect('login')
     
+    # Redirect admins to the admin panel
+    if request.user.is_superuser or request.user.is_staff:
+        return redirect('admin:index')
+    
     try:
         profile = request.user.userprofile
         if profile.role.lower() == 'engineer':
