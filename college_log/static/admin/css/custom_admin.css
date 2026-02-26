@@ -206,30 +206,63 @@
 /* ----------------------------------------------------------
    6. RECENT ACTIONS PANEL
    ---------------------------------------------------------- */
-.recent-actions-module { min-width: 280px !important; }
+
+/* Give the recent-actions column enough width */
+#content-main .col-12.col-md-4,
+#content-related,
+.recent-actions-module {
+    min-width: 300px !important;
+}
+
 .recent-actions-module h2 { font-size: 1rem !important; font-weight: 600 !important; }
 
-.recent-actions-module ul { padding: 0 !important; list-style: none !important; }
+/* Timeline container */
+.recent-actions-module .timeline,
+.recent-actions-module ul {
+    padding: 0 !important;
+    list-style: none !important;
+}
 
+/* Each timeline row */
+.recent-actions-module .timeline > li,
 .recent-actions-module ul li {
     white-space: normal !important;
-    overflow-wrap: break-word !important;
-    word-break: normal !important;
-    line-height: 1.45 !important;
+    overflow-wrap: anywhere !important;   /* break only when truly necessary */
+    word-break: break-word !important;    /* prevents mid-character splits */
+    hyphens: none !important;             /* no hyphenation */
+    line-height: 1.5 !important;
     padding: 8px 12px !important;
     border-bottom: 1px solid #f0f2f5 !important;
 }
 
-.recent-actions-module ul li a,
+/* Timeline item header (holds the object link) */
+.recent-actions-module .timeline-item,
+.recent-actions-module .timeline-header,
+.recent-actions-module .timeline-body {
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    hyphens: none !important;
+}
+
+/* All anchor tags inside recent-actions */
+.recent-actions-module a,
+.recent-actions-module ul li a {
+    display: inline !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    hyphens: none !important;
+    text-overflow: unset !important;
+    overflow: visible !important;
+}
+
+/* Action-type badges */
 .recent-actions-module .addlink,
 .recent-actions-module .changelink,
 .recent-actions-module .deletelink {
-    display: inline !important;
-    white-space: normal !important;
-    overflow-wrap: break-word !important;
-    word-break: normal !important;
-    text-overflow: unset !important;
-    overflow: visible !important;
+    white-space: nowrap !important;
+    display: inline-block !important;
 }
 
 
