@@ -186,7 +186,7 @@
                         {% if issue.comments.count > 5 %}
                             <span style="color:#888;font-size:0.95em;">Showing latest 5 comments.</span>
                         {% endif %}
-                        {% if issue.status != 'closed' and issue.status != 'completed' %}
+                        {% if issue.status != 'closed' and issue.status != 'completed' and issue.status != 'resolved' %}
                             <form class="add-comment-form" method="post" action="{% url 'engineer_dashboard' %}">
                                 {% csrf_token %}
                                 <input type="hidden" name="issue_id" value="{{ issue.id }}">

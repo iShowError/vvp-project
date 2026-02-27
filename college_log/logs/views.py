@@ -171,7 +171,7 @@ def engineer_dashboard(request):
         
         if comment_text and issue_id:
             issue = get_object_or_404(_engineer_visible_issues(request.user), id=issue_id)
-            if issue.status not in ['closed', 'completed']:
+            if issue.status not in ['closed', 'completed', 'resolved']:
                 Comment.objects.create(issue=issue, engineer=request.user, text=comment_text)
                 messages.success(request, 'Comment added successfully.')
                 # Send email notification for new comment
