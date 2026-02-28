@@ -229,6 +229,9 @@ def dept_head_dashboard(request):
         elif 'update_issue_id' in request.POST:
             update_issue_id = request.POST.get('update_issue_id')
             issue = get_object_or_404(Issue, id=update_issue_id, dept_head=request.user)
+            if issue.status in ['completed', 'closed']:
+                messages.error(request, 'This issue is already closed and cannot be updated.')
+                return redirect('dept_head_dashboard')
             form = UpdateIssueForm(request.user, request.POST, instance=issue)
             if form.is_valid():
                 old_status = issue.status

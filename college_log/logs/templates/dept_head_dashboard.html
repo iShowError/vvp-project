@@ -213,7 +213,7 @@
                     </div>
                 </td>
                 <td>
-                    {% if issue.status == 'open' %}
+                    {% if issue.status != 'completed' and issue.status != 'closed' %}
                         <form method="post" action="{% url 'dept_head_dashboard' %}">
                             {% csrf_token %}
                             <input type="hidden" name="update_issue_id" value="{{ issue.id }}">
