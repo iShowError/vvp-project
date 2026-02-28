@@ -150,8 +150,10 @@ def login_view(request):
     return render(request, 'login.html', {'form': form, 'error_message': error_message})
 
 def logout_view(request):
-    logout(request)
-    return redirect('login')
+    if request.method == 'POST':
+        logout(request)
+        return redirect('login')
+    return redirect('home')
 
 @login_required
 def engineer_dashboard(request):

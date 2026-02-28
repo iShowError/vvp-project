@@ -33,7 +33,10 @@
                         <span class="navbar-text mr-3">Welcome, {{ user.username }} ({{ user.userprofile.role|title }})</span>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-danger" href="{% url 'logout' %}">Logout</a>
+                        <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">Logout</button>
+                        </form>
                     </li>
                 {% else %}
                     <li class="nav-item">
