@@ -177,7 +177,7 @@
                                         </span>
                                     {% endif %}
                                 {% else %}
-                                    <b>{{ comment.engineer.email }}:</b> {{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
+                                    <b>{{ comment.engineer.email|default:"Deleted User" }}:</b> {{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
                                 {% endif %}
                             </div>
                         {% empty %}

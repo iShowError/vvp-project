@@ -191,7 +191,7 @@
                     <div class="comment-section">
                         {% for comment in issue.comments.all|slice:':5' %}
                             <div class="comment">
-                                <b>Engineer:</b> {{ comment.engineer.email }}<br>{{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
+                                <b>Engineer:</b> {{ comment.engineer.email|default:"Deleted User" }}<br>{{ comment.text }} <span style="color:#888; font-size:0.9em;">({{ comment.created_at|date:"M d, Y H:i" }})</span>
                             </div>
                         {% empty %}
                             <span style="color:#aaa;">No comments yet.</span>
