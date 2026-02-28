@@ -243,7 +243,7 @@ def dept_head_dashboard(request):
                 # Send email notification for status update
                 send_mail(
                     subject='Issue Status Updated',
-                    message=f'An issue status has been updated.\n\nDevice: {issue.device_type}\nDescription: {issue.description}\nStatus changed from "{old_status}" to "{issue.status}"\nBy: {issue.dept_head.email}',
+                    message=f'An issue status has been updated.\n\nDevice: {issue.device_type}\nDescription: {issue.description}\nStatus changed from "{old_status}" to "{issue.status}"\nBy: {issue.dept_head.email if issue.dept_head else "Deleted User"}',
                     from_email=None,
                     recipient_list=['adityakiratsata@gmail.com'],
                     fail_silently=True,
