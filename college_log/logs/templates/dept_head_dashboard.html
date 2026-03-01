@@ -202,17 +202,6 @@
                         {% if issue.comments.count > 5 %}
                             <span style="color:#888;font-size:0.95em;">Showing latest 5 comments.</span>
                         {% endif %}
-        {% if issues.has_other_pages %}
-        <div style="text-align:center;margin-top:18px;">
-            {% if issues.has_previous %}
-                <a href="?page={{ issues.previous_page_number }}" style="margin-right:10px;">&laquo; Previous</a>
-            {% endif %}
-            <span>Page {{ issues.number }} of {{ issues.paginator.num_pages }}</span>
-            {% if issues.has_next %}
-                <a href="?page={{ issues.next_page_number }}" style="margin-left:10px;">Next &raquo;</a>
-            {% endif %}
-        </div>
-        {% endif %}
                     </div>
                 </td>
                 <td>
@@ -230,6 +219,17 @@
             </tr>
             {% endfor %}
         </table>
+        {% if issues.has_other_pages %}
+        <div style="text-align:center;margin-top:18px;">
+            {% if issues.has_previous %}
+                <a href="?page={{ issues.previous_page_number }}" style="margin-right:10px;">&laquo; Previous</a>
+            {% endif %}
+            <span>Page {{ issues.number }} of {{ issues.paginator.num_pages }}</span>
+            {% if issues.has_next %}
+                <a href="?page={{ issues.next_page_number }}" style="margin-left:10px;">Next &raquo;</a>
+            {% endif %}
+        </div>
+        {% endif %}
     </div>
 </body>
 </html>
