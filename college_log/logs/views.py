@@ -14,7 +14,7 @@ from django.urls import reverse
 from django.db import IntegrityError, DatabaseError, transaction
 from django.db.models import Q
 from .models import Issue, Comment, UserProfile, Device, Log
-from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm, CommentForm
+from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm
 from django.utils import timezone
 
 
