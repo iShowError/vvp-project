@@ -222,21 +222,6 @@ Failure count stored in cache (per email + IP)
 4. Test thoroughly using the checklist above
 5. Submit a pull request
 
-## License
-
-This project was built for VVP Engineering College. Feel free to use and modify as needed.
-
-## Credits
-
-**Developed for VVP Engineering College**
-
-Technologies used:
-- Django Framework
-- django-allauth
-- django-jazzmin
-- django-simple-history
-- And various open-source libraries
-
 ---
 
 **Happy resolving! 🔧✅**
