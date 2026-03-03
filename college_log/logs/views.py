@@ -190,6 +190,9 @@ def engineer_dashboard(request):
             
         if edit_id:
             comment = get_object_or_404(Comment, id=edit_id, engineer=request.user)
+            if comment.issue.status in ['closed', 'completed', 'resolved']:
+                messages.error(request, 'Cannot edit a comment on a closed issue.')
+                return redirect('engineer_dashboard')
             new_text = request.POST.get('edit_text')
             if new_text:
                 comment.text = new_text
@@ -199,6 +202,9 @@ def engineer_dashboard(request):
             
         if delete_id:
             comment = get_object_or_404(Comment, id=delete_id, engineer=request.user)
+            if comment.issue.status in ['closed', 'completed', 'resolved']:
+                messages.error(request, 'Cannot delete a comment on a closed issue.')
+                return redirect('engineer_dashboard')
             comment.delete()
             messages.success(request, 'Comment deleted successfully.')
             return redirect('engineer_dashboard')
