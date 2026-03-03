@@ -1,4 +1,4 @@
-# VVP College IT Complaint System 🏫🔧
+# Issue Management System 🏫🔧
 
 A Django-based complaint and issue management system for VVP Engineering College. Department Heads can raise IT infrastructure complaints, Engineers track and resolve them, and Admins oversee everything from a dedicated panel.
 
