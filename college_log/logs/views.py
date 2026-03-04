@@ -209,7 +209,7 @@ def engineer_dashboard(request):
             messages.success(request, 'Comment deleted successfully.')
             return redirect('engineer_dashboard')
 
-    issues_list = _engineer_visible_issues(request.user).order_by('-created_at')
+    issues_list = _engineer_visible_issues(request.user).order_by('-created_at').prefetch_related('comments__engineer')
     paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
     issues = paginator.get_page(page_number)
@@ -258,7 +258,7 @@ def dept_head_dashboard(request):
                 )
             return redirect('dept_head_dashboard')
 
-    issues_list = Issue.objects.filter(dept_head=request.user).order_by('-created_at')
+    issues_list = Issue.objects.filter(dept_head=request.user).order_by('-created_at').prefetch_related('comments__engineer')
     paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
     issues = paginator.get_page(page_number)

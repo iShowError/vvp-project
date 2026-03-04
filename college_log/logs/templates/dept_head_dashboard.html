@@ -209,7 +209,7 @@
                         {% empty %}
                             <span style="color:#aaa;">No comments yet.</span>
                         {% endfor %}
-                        {% if issue.comments.count > 5 %}
+                        {% if issue.comments.all|length > 5 %}
                             <span style="color:#888;font-size:0.95em;">Showing latest 5 comments.</span>
                         {% endif %}
                     </div>
