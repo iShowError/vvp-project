@@ -174,11 +174,7 @@
     <div class="container">
         {% if messages %}
             {% for message in messages %}
-                <div style="background:#eafaf1;color:#1e824c;padding:10px 16px;border-radius:6px;margin-bottom:14px;font-size:1.05em;">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-
-        <div class="issue-form">
+                <div style="background:{% if 'error' in message.tags %}#fdecea;{% elif 'warning' in message.tags %}#fff8e1;{% else %}#eafaf1;{% endif %} color:{% if 'error' in message.tags %}#b71c1c;{% elif 'warning' in message.tags %}#e65100;{% else %}#1e824c;{% endif %} padding:10px 16px;border-radius:6px;margin-bottom:14px;font-size:1.05em;">{{ message }}</div>
             <h2>Submit a New Issue</h2>
             <form method="post" action="{% url 'dept_head_dashboard' %}">
                 {% csrf_token %}
