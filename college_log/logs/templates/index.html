@@ -30,7 +30,7 @@
             <ul class="navbar-nav ml-auto">
                 {% if user.is_authenticated %}
                     <li class="nav-item">
-                        <span class="navbar-text mr-3">Welcome, {{ user.username }} ({{ user.userprofile.role|title }})</span>
+                        <span class="navbar-text mr-3">Welcome, {{ user.username }}{% if user.userprofile %} ({{ user.userprofile.role|title }}){% endif %}</span>
                     </li>
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}" style="display:inline;">
@@ -64,8 +64,13 @@
             <p class="lead">This system allows you to report and track technical issues in the college.</p>
             <hr class="my-4">
             {% if user.is_authenticated %}
-                <p>You are logged in as a {{ user.userprofile.role|title }}.</p>
-                <a class="btn btn-primary btn-lg" href="{% if user.userprofile.role|lower == 'engineer' %}{% url 'engineer_dashboard' %}{% else %}{% url 'dept_head_dashboard' %}{% endif %}" role="button">Go to Dashboard</a>
+                {% if user.userprofile %}
+                    <p>You are logged in as a {{ user.userprofile.role|title }}.</p>
+                    <a class="btn btn-primary btn-lg" href="{% if user.userprofile.role|lower == 'engineer' %}{% url 'engineer_dashboard' %}{% else %}{% url 'dept_head_dashboard' %}{% endif %}" role="button">Go to Dashboard</a>
+                {% else %}
+                    <p>You are logged in as an administrator.</p>
+                    <a class="btn btn-secondary btn-lg" href="{% url 'admin:index' %}" role="button">Go to Admin Panel</a>
+                {% endif %}
             {% else %}
                 <p>Please login or register to continue.</p>
                 <a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">Login</a>
