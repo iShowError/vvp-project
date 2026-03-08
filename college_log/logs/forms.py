@@ -6,7 +6,6 @@ class RegistrationForm(forms.ModelForm):
     email = forms.EmailField(required=True)
     password = forms.CharField(widget=forms.PasswordInput)
     password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm password")
-    role = forms.ChoiceField(choices=UserProfile.USER_ROLES)
 
     class Meta:
         model = User
@@ -27,31 +26,21 @@ class RegistrationForm(forms.ModelForm):
         if password and password2 and password != password2:
             raise forms.ValidationError("Passwords don't match")
         
-        role = cleaned_data.get('role')
         email = cleaned_data.get('email')
 
-        if email and role:
-            # Validate email format based on role
-            if role == 'engineer':
-                # Engineers: must end with @vvpedulink.ac.in
-                if not email.endswith('@vvpedulink.ac.in'):
-                    raise forms.ValidationError('Engineers must use an email ending with @vvpedulink.ac.in')
-                    
-            elif role == 'dept_head':
-                # Department Heads: must start with {it,ce,bt,me,ch,ec,cv}hod and end with @vvpedulink.ac.in
-                valid_depts = ['it', 'ce', 'bt', 'me', 'ch', 'ec', 'cv']
-                valid_prefixes = [f'{dept}hod' for dept in valid_depts]
-                
-                if not email.endswith('@vvpedulink.ac.in'):
-                    raise forms.ValidationError('Department heads must use an email ending with @vvpedulink.ac.in')
-                
-                username_part = email.split('@')[0]
-                if not any(username_part.startswith(prefix) for prefix in valid_prefixes):
-                    valid_formats = ', '.join([f'{prefix}@vvpedulink.ac.in' for prefix in valid_prefixes])
-                    raise forms.ValidationError(
-                        f'Department heads must use an email starting with one of: {valid_formats}'
-                    )
-        
+        if email:
+            if not email.endswith('@vvpedulink.ac.in'):
+                raise forms.ValidationError('You must use an institutional email ending with @vvpedulink.ac.in')
+
+            valid_depts = ['it', 'ce', 'bt', 'me', 'ch', 'ec', 'cv']
+            valid_prefixes = [f'{dept}hod' for dept in valid_depts]
+            username_part = email.split('@')[0]
+
+            if any(username_part.startswith(prefix) for prefix in valid_prefixes):
+                cleaned_data['role'] = 'dept_head'
+            else:
+                cleaned_data['role'] = 'engineer'
+
         return cleaned_data
 
 class LoginForm(forms.Form):
