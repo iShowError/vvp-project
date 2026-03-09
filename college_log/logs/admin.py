@@ -1,6 +1,8 @@
 from django.contrib import admin
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from django.core.mail import send_mail
 from simple_history.admin import SimpleHistoryAdmin
 from .models import Device, Log, Issue, Comment, UserProfile
 
@@ -72,9 +74,10 @@ class CommentAdmin(SimpleHistoryAdmin):
 
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ("user", "role", "user_email", "user_date_joined")
-    list_filter = ("role",)
+    list_display = ("user", "role", "approval_status", "user_email", "user_date_joined")
+    list_filter = ("role", "approval_status")
     search_fields = ("user__email", "user__username", "user__first_name", "user__last_name")
+    actions = ['approve_selected_users', 'reject_selected_users']
     
     def user_email(self, obj):
         return obj.user.email
@@ -83,3 +86,52 @@ class UserProfileAdmin(admin.ModelAdmin):
     def user_date_joined(self, obj):
         return obj.user.date_joined
     user_date_joined.short_description = 'Date Joined'
+
+    @admin.action(description='Approve selected users')
+    def approve_selected_users(self, request, queryset):
+        count = 0
+        for profile in queryset.filter(approval_status='pending'):
+            user = profile.user
+            user.is_active = True
+            user.save(update_fields=['is_active'])
+            profile.approval_status = 'approved'
+            profile.save(update_fields=['approval_status'])
+            try:
+                send_mail(
+                    '[Issue Management System] Your account has been approved!',
+                    f'Hello,\n\n'
+                    f'Your account ({user.email}) has been approved by an administrator.\n'
+                    f'You can now log in and access your dashboard.\n\n'
+                    f'Thank you!',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                )
+            except Exception:
+                pass
+            count += 1
+        self.message_user(request, f'{count} user(s) approved and notified.')
+
+    @admin.action(description='Reject selected users')
+    def reject_selected_users(self, request, queryset):
+        count = 0
+        for profile in queryset.filter(approval_status='pending'):
+            user = profile.user
+            email = user.email
+            profile.approval_status = 'rejected'
+            profile.save(update_fields=['approval_status'])
+            try:
+                send_mail(
+                    '[Issue Management System] Registration not approved',
+                    f'Hello,\n\n'
+                    f'We regret to inform you that your registration ({email}) '
+                    f'was not approved by an administrator.\n\n'
+                    f'If you believe this was a mistake, please contact the admin directly.\n\n'
+                    f'Thank you.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [email],
+                )
+            except Exception:
+                pass
+            user.delete()
+            count += 1
+        self.message_user(request, f'{count} user(s) rejected and notified.')
