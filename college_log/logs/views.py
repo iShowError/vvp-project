@@ -306,12 +306,26 @@ def login_view(request):
                 login(request, user)
                 return redirect('home')
             else:
-                failures = _record_failed_login(email, ip_address)
-                max_attempts = getattr(settings, 'LOGIN_MAX_ATTEMPTS', 5)
-                if failures >= max_attempts:
-                    error_message = 'Too many failed login attempts. Please try again in 15 minutes.'
-                else:
-                    error_message = "The email or password you entered is incorrect. Please try again."
+                # Check if this is a pending/rejected user (inactive account)
+                try:
+                    inactive_user = User.objects.get(username=email, is_active=False)
+                    profile = getattr(inactive_user, 'userprofile', None)
+                    if profile and profile.approval_status == 'pending':
+                        error_message = 'Your account is pending admin approval. Please wait for the confirmation email.'
+                    elif profile and profile.approval_status == 'rejected':
+                        error_message = 'Your registration was not approved. Please contact the administrator.'
+                    else:
+                        error_message = 'Your account is inactive. Please contact the administrator.'
+                except User.DoesNotExist:
+                    pass
+
+                if not error_message:
+                    failures = _record_failed_login(email, ip_address)
+                    max_attempts = getattr(settings, 'LOGIN_MAX_ATTEMPTS', 5)
+                    if failures >= max_attempts:
+                        error_message = 'Too many failed login attempts. Please try again in 15 minutes.'
+                    else:
+                        error_message = "The email or password you entered is incorrect. Please try again."
     else:
         form = LoginForm()
     return render(request, 'login.html', {'form': form, 'error_message': error_message})
