@@ -23,6 +23,12 @@ class UserProfile(models.Model):
     ]
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="userprofile")
     role = models.CharField(max_length=20, choices=USER_ROLES)
+    APPROVAL_STATUSES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    approval_status = models.CharField(max_length=10, choices=APPROVAL_STATUSES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     history = HistoricalRecords()
     

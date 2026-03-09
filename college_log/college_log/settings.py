@@ -4,17 +4,14 @@ import json
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load Google OAuth configuration from JSON
-GOOGLE_OAUTH_CONFIG_PATH = BASE_DIR / 'college_log' / 'google_oauth_config.json'
+# Load configuration from JSON
+CONFIG_PATH = BASE_DIR / 'college_log' / 'config.json'
 
 try:
-    with open(GOOGLE_OAUTH_CONFIG_PATH, 'r') as f:
-        GOOGLE_OAUTH_CONFIG = json.load(f)
+    with open(CONFIG_PATH, 'r') as f:
+        APP_CONFIG = json.load(f)
 except FileNotFoundError:
-    GOOGLE_OAUTH_CONFIG = {
-        'client_id': '',
-        'secret': ''
-    }
+    APP_CONFIG = {}
 
 
 # Quick-start development settings - unsuitable for production
@@ -156,8 +153,8 @@ SOCIALACCOUNT_PROVIDERS = {
         },
         'OAUTH_PKCE_ENABLED': True,
         'APP': {
-            'client_id': GOOGLE_OAUTH_CONFIG['client_id'],
-            'secret': GOOGLE_OAUTH_CONFIG['secret'],
+            'client_id': APP_CONFIG.get('google_oauth_client_id', ''),
+            'secret': APP_CONFIG.get('google_oauth_secret', ''),
             'key': ''
         }
     }
@@ -168,6 +165,15 @@ LOGOUT_REDIRECT_URL = '/'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_LOGIN_ON_GET = False
 SOCIALACCOUNT_LOGIN_CANCELLED_URL = '/login/'
+
+# Email configuration (Gmail SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = APP_CONFIG.get('email_host_user', '')
+EMAIL_HOST_PASSWORD = APP_CONFIG.get('email_host_password', '')
+DEFAULT_FROM_EMAIL = APP_CONFIG.get('email_host_user', 'noreply@vvpedulink.ac.in')
 
 # Jazzmin configuration
 JAZZMIN_SETTINGS = {
