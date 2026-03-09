@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.core.mail import send_mail
+from django.template.loader import render_to_string
 from simple_history.admin import SimpleHistoryAdmin
 from .models import Device, Log, Issue, Comment, UserProfile
 
@@ -97,14 +98,17 @@ class UserProfileAdmin(admin.ModelAdmin):
             profile.approval_status = 'approved'
             profile.save(update_fields=['approval_status'])
             try:
+                login_url = request.build_absolute_uri('/login/')
+                html_message = render_to_string('emails/user_approved.html', {
+                    'email': user.email,
+                    'login_url': login_url,
+                })
                 send_mail(
                     '[Issue Management System] Your account has been approved!',
-                    f'Hello,\n\n'
-                    f'Your account ({user.email}) has been approved by an administrator.\n'
-                    f'You can now log in and access your dashboard.\n\n'
-                    f'Thank you!',
+                    f'Hello,\n\nYour account ({user.email}) has been approved by an administrator.\nYou can now log in and access your dashboard.\n\nThank you!',
                     settings.DEFAULT_FROM_EMAIL,
                     [user.email],
+                    html_message=html_message,
                 )
             except Exception:
                 pass
@@ -120,15 +124,15 @@ class UserProfileAdmin(admin.ModelAdmin):
             profile.approval_status = 'rejected'
             profile.save(update_fields=['approval_status'])
             try:
+                html_message = render_to_string('emails/user_rejected.html', {
+                    'email': email,
+                })
                 send_mail(
                     '[Issue Management System] Registration not approved',
-                    f'Hello,\n\n'
-                    f'We regret to inform you that your registration ({email}) '
-                    f'was not approved by an administrator.\n\n'
-                    f'If you believe this was a mistake, please contact the admin directly.\n\n'
-                    f'Thank you.',
+                    f'Hello,\n\nWe regret to inform you that your registration ({email}) was not approved by an administrator.\n\nIf you believe this was a mistake, please contact the admin directly.\n\nThank you.',
                     settings.DEFAULT_FROM_EMAIL,
                     [email],
+                    html_message=html_message,
                 )
             except Exception:
                 pass

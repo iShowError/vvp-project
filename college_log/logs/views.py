@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.db import IntegrityError, DatabaseError, transaction
 from django.db.models import Q
@@ -154,7 +155,7 @@ def _send_approval_email_to_admins(request, user, role):
 
     role_display = 'Engineer' if role == 'engineer' else 'Department Head'
     subject = f'[Issue Management System] New registration: {user.email}'
-    message = (
+    plain_message = (
         f'A new user has registered and is awaiting your approval.\n\n'
         f'Email: {user.email}\n'
         f'Role: {role_display}\n'
@@ -163,6 +164,13 @@ def _send_approval_email_to_admins(request, user, role):
         f'Reject: {reject_url}\n\n'
         f'This link expires in 7 days.'
     )
+    html_message = render_to_string('emails/admin_approval_request.html', {
+        'email': user.email,
+        'role': role_display,
+        'registered_at': user.date_joined.strftime('%Y-%m-%d %H:%M'),
+        'approve_url': approve_url,
+        'reject_url': reject_url,
+    })
 
     admin_emails = list(
         User.objects.filter(is_superuser=True)
@@ -171,7 +179,7 @@ def _send_approval_email_to_admins(request, user, role):
     )
     if admin_emails:
         try:
-            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
+            send_mail(subject, plain_message, settings.DEFAULT_FROM_EMAIL, admin_emails, html_message=html_message)
         except Exception:
             logger.exception("Failed to send approval email to admins for user=%s", user.email)
 
@@ -218,14 +226,22 @@ def approve_user(request, token):
 
     # Notify the user
     try:
-        send_mail(
-            '[Issue Management System] Your account has been approved!',
+        plain_message = (
             f'Hello,\n\n'
             f'Your account ({user.email}) has been approved by an administrator.\n'
             f'You can now log in and access your dashboard.\n\n'
-            f'Thank you!',
+            f'Thank you!'
+        )
+        html_message = render_to_string('emails/user_approved.html', {
+            'email': user.email,
+            'login_url': request.build_absolute_uri('/login/'),
+        })
+        send_mail(
+            '[Issue Management System] Your account has been approved!',
+            plain_message,
             settings.DEFAULT_FROM_EMAIL,
             [user.email],
+            html_message=html_message,
         )
     except Exception:
         logger.exception("Failed to send approval notification to user=%s", user.email)
@@ -265,15 +281,22 @@ def reject_user(request, token):
 
     # Notify the user before deleting
     try:
-        send_mail(
-            '[Issue Management System] Registration not approved',
+        plain_message = (
             f'Hello,\n\n'
             f'We regret to inform you that your registration ({email}) '
             f'was not approved by an administrator.\n\n'
             f'If you believe this was a mistake, please contact the admin directly.\n\n'
-            f'Thank you.',
+            f'Thank you.'
+        )
+        html_message = render_to_string('emails/user_rejected.html', {
+            'email': email,
+        })
+        send_mail(
+            '[Issue Management System] Registration not approved',
+            plain_message,
             settings.DEFAULT_FROM_EMAIL,
             [email],
+            html_message=html_message,
         )
     except Exception:
         logger.exception("Failed to send rejection notification to user=%s", email)
