@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Pending - Issue Management System</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .pending-container {
+            background: white;
+            padding: 3rem 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .pending-icon {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+        .pending-title {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .pending-message {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .info-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        .info-card .label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-card .value {
+            font-size: 1rem;
+            color: #333;
+            margin-bottom: 0.75rem;
+        }
+        .info-card .value:last-child {
+            margin-bottom: 0;
+        }
+        .login-link {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+        }
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="pending-container">
+        <div class="pending-icon">&#9203;</div>
+        <h2 class="pending-title">Registration Pending</h2>
+        <p class="pending-message">
+            Your registration request has been submitted successfully. An admin will review your request and you'll receive an email once your account is approved.
+        </p>
+        <div class="info-card">
+            <div class="label">Email</div>
+            <div class="value">{{ email }}</div>
+            <div class="label">Role</div>
+            <div class="value">{{ role }}</div>
+        </div>
+        <div class="login-link">
+            <p><a href="{% url 'login' %}">&larr; Back to Login</a></p>
+        </div>
+    </div>
+</body>
+</html>

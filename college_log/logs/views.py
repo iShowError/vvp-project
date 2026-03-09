@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core.cache import cache
 from django.core.mail import send_mail
+from django.core.signing import TimestampSigner, BadSignature, SignatureExpired
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -21,6 +22,22 @@ from django.utils import timezone
 ITEMS_PER_PAGE = 10
 
 logger = logging.getLogger(__name__)
+
+
+signer = TimestampSigner()
+
+
+def _generate_approval_token(user_id, action):
+    return signer.sign(f'{user_id}:{action}')
+
+
+def _verify_approval_token(token, max_age=7 * 24 * 3600):
+    try:
+        value = signer.unsign(token, max_age=max_age)
+        user_id_str, action = value.rsplit(':', 1)
+        return int(user_id_str), action
+    except (BadSignature, SignatureExpired, ValueError):
+        return None, None
 
 
 def _get_client_ip(request):
@@ -100,7 +117,9 @@ def register(request):
                         email=email,
                         password=password,
                     )
-                    UserProfile.objects.create(user=user, role=role)
+                    user.is_active = False
+                    user.save(update_fields=['is_active'])
+                    UserProfile.objects.create(user=user, role=role, approval_status='pending')
             except IntegrityError:
                 logger.warning(
                     "Registration conflict for email=%s; likely duplicate submission or race condition.",
@@ -113,11 +132,60 @@ def register(request):
                 form.add_error(None, 'We could not create your account right now. Please try again in a moment.')
                 messages.error(request, 'We could not create your account right now. Please try again in a moment.')
             else:
-                messages.success(request, 'Registration successful! Please login.')
-                return redirect('login')
+                # Email all superusers with approve/reject links
+                _send_approval_email_to_admins(request, user, role)
+
+                # Store pending info in session for the pending page
+                request.session['pending_email'] = email
+                request.session['pending_role'] = role
+                return redirect('registration_pending')
     else:
         form = RegistrationForm()
     return render(request, 'register.html', {'form': form})
+
+
+def _send_approval_email_to_admins(request, user, role):
+    approve_token = _generate_approval_token(user.id, 'approve')
+    reject_token = _generate_approval_token(user.id, 'reject')
+
+    base_url = request.build_absolute_uri('/')[:-1]  # e.g. http://127.0.0.1:8000
+    approve_url = f"{base_url}/approve/{approve_token}/"
+    reject_url = f"{base_url}/reject/{reject_token}/"
+
+    role_display = 'Engineer' if role == 'engineer' else 'Department Head'
+    subject = f'[Issue Management System] New registration: {user.email}'
+    message = (
+        f'A new user has registered and is awaiting your approval.\n\n'
+        f'Email: {user.email}\n'
+        f'Role: {role_display}\n'
+        f'Registered at: {user.date_joined.strftime("%Y-%m-%d %H:%M")}\n\n'
+        f'Approve: {approve_url}\n\n'
+        f'Reject: {reject_url}\n\n'
+        f'This link expires in 7 days.'
+    )
+
+    admin_emails = list(
+        User.objects.filter(is_superuser=True)
+        .values_list('email', flat=True)
+        .exclude(email='')
+    )
+    if admin_emails:
+        try:
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, admin_emails)
+        except Exception:
+            logger.exception("Failed to send approval email to admins for user=%s", user.email)
+
+
+def registration_pending(request):
+    email = request.session.pop('pending_email', None)
+    role = request.session.pop('pending_role', None)
+    if not email:
+        return redirect('register')
+    role_display = 'Engineer' if role == 'engineer' else 'Department Head'
+    return render(request, 'registration_pending.html', {
+        'email': email,
+        'role': role_display,
+    })
 
 def login_view(request):
     error_message = None
