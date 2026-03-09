@@ -187,6 +187,105 @@ def registration_pending(request):
         'role': role_display,
     })
 
+
+def approve_user(request, token):
+    user_id, action = _verify_approval_token(token)
+    if user_id is None or action != 'approve':
+        return render(request, 'approval_result.html', {
+            'success': False,
+            'message': 'This approval link is invalid or has expired.',
+        })
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return render(request, 'approval_result.html', {
+            'success': False,
+            'message': 'The user account no longer exists.',
+        })
+
+    profile = user.userprofile
+    if profile.approval_status == 'approved':
+        return render(request, 'approval_result.html', {
+            'success': True,
+            'message': f'{user.email} has already been approved.',
+        })
+
+    user.is_active = True
+    user.save(update_fields=['is_active'])
+    profile.approval_status = 'approved'
+    profile.save(update_fields=['approval_status'])
+
+    # Notify the user
+    try:
+        send_mail(
+            '[Issue Management System] Your account has been approved!',
+            f'Hello,\n\n'
+            f'Your account ({user.email}) has been approved by an administrator.\n'
+            f'You can now log in and access your dashboard.\n\n'
+            f'Thank you!',
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+        )
+    except Exception:
+        logger.exception("Failed to send approval notification to user=%s", user.email)
+
+    return render(request, 'approval_result.html', {
+        'success': True,
+        'message': f'{user.email} has been approved and notified via email.',
+    })
+
+
+def reject_user(request, token):
+    user_id, action = _verify_approval_token(token)
+    if user_id is None or action != 'reject':
+        return render(request, 'approval_result.html', {
+            'success': False,
+            'message': 'This rejection link is invalid or has expired.',
+        })
+
+    try:
+        user = User.objects.get(pk=user_id)
+    except User.DoesNotExist:
+        return render(request, 'approval_result.html', {
+            'success': False,
+            'message': 'The user account no longer exists.',
+        })
+
+    profile = user.userprofile
+    if profile.approval_status == 'rejected':
+        return render(request, 'approval_result.html', {
+            'success': True,
+            'message': f'{user.email} has already been rejected.',
+        })
+
+    email = user.email
+    profile.approval_status = 'rejected'
+    profile.save(update_fields=['approval_status'])
+
+    # Notify the user before deleting
+    try:
+        send_mail(
+            '[Issue Management System] Registration not approved',
+            f'Hello,\n\n'
+            f'We regret to inform you that your registration ({email}) '
+            f'was not approved by an administrator.\n\n'
+            f'If you believe this was a mistake, please contact the admin directly.\n\n'
+            f'Thank you.',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+        )
+    except Exception:
+        logger.exception("Failed to send rejection notification to user=%s", email)
+
+    user.delete()
+
+    return render(request, 'approval_result.html', {
+        'success': True,
+        'message': f'{email} has been rejected and notified via email.',
+    })
+
+
 def login_view(request):
     error_message = None
     if request.method == 'POST':
