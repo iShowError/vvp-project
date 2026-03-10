@@ -1,4 +1,5 @@
 from pathlib import Path
+from django.contrib.messages import constants as message_constants
 import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -132,6 +133,11 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Map Django message level tags to Bootstrap alert classes
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+}
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

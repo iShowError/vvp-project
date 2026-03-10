@@ -1,0 +1,155 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Issue Management System{% endblock %}</title>
+    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YcnS49cNTlz9OWnSnzFegJJIwwdA1hHTb2Q"
+          crossorigin="anonymous">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Warm Slate Theme -->
+    <style>
+        :root {
+            --ims-primary: #4A6FA5;
+            --ims-primary-dark: #344E73;
+            --ims-secondary: #6B8F71;
+            --ims-accent: #D4A373;
+            --ims-danger: #C1666B;
+            --ims-bg: #F8F6F4;
+            --ims-surface: #FFFFFF;
+            --ims-text: #2D3436;
+            --ims-muted: #636E72;
+            --ims-border: #E0DDD9;
+        }
+
+        body {
+            background-color: var(--ims-bg);
+            color: var(--ims-text);
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        /* Navbar */
+        .navbar-ims {
+            background-color: var(--ims-primary) !important;
+        }
+        .navbar-ims .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Buttons */
+        .btn-ims-primary {
+            background-color: var(--ims-primary);
+            border-color: var(--ims-primary);
+            color: #fff;
+        }
+        .btn-ims-primary:hover {
+            background-color: var(--ims-primary-dark);
+            border-color: var(--ims-primary-dark);
+            color: #fff;
+        }
+        .btn-ims-danger {
+            background-color: var(--ims-danger);
+            border-color: var(--ims-danger);
+            color: #fff;
+        }
+        .btn-ims-danger:hover {
+            background-color: #a8545a;
+            border-color: #a8545a;
+            color: #fff;
+        }
+
+        /* Cards */
+        .card {
+            border-color: var(--ims-border);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        }
+
+        /* Tables */
+        .table thead {
+            background-color: #f0eeeb;
+        }
+
+        /* Priority badges */
+        .badge-critical { background-color: var(--ims-danger); color: #fff; }
+        .badge-high { background-color: #e67e22; color: #fff; }
+        .badge-medium { background-color: var(--ims-accent); color: #2D3436; }
+        .badge-low { background-color: var(--ims-secondary); color: #fff; }
+
+        /* Status badges */
+        .badge-open { background-color: #e67e22; color: #fff; }
+        .badge-in_progress { background-color: var(--ims-primary); color: #fff; }
+        .badge-resolved { background-color: var(--ims-secondary); color: #fff; }
+        .badge-completed { background-color: #2d6a4f; color: #fff; }
+        .badge-closed { background-color: var(--ims-muted); color: #fff; }
+
+        /* Auth pages centered layout */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--ims-primary) 0%, var(--ims-primary-dark) 100%);
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+        }
+        .auth-card .card-header {
+            background: linear-gradient(135deg, var(--ims-primary) 0%, var(--ims-primary-dark) 100%);
+            color: #fff;
+            text-align: center;
+            padding: 1.5rem;
+            border-bottom: none;
+        }
+        .auth-card .card-header h4 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        .footer-ims {
+            color: var(--ims-muted);
+            border-top: 1px solid var(--ims-border);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    {% block navbar %}
+        {% if show_navbar %}
+            {% include "includes/navbar.html" %}
+        {% endif %}
+    {% endblock %}
+
+    <main class="{% block main_class %}container py-4{% endblock %}">
+        {% include "includes/messages.html" %}
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+    <footer class="footer-ims text-center py-3 mt-4">
+        <small>&copy; 2026 Issue Management System &mdash; VVP College</small>
+    </footer>
+    {% endblock %}
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
