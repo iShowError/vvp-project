@@ -416,8 +416,8 @@ def engineer_dashboard(request):
     issues_list = _engineer_visible_issues(request.user).order_by('-created_at').prefetch_related('comments__engineer')
     paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
-    issues = paginator.get_page(page_number)
-    return render(request, 'engineer_dashboard.html', {'issues': issues})
+    page_obj = paginator.get_page(page_number)
+    return render(request, 'engineer_dashboard.html', {'page_obj': page_obj, 'show_navbar': True})
 
 
 @login_required
@@ -465,6 +465,6 @@ def dept_head_dashboard(request):
     issues_list = Issue.objects.filter(dept_head=request.user).order_by('-created_at').prefetch_related('comments__engineer')
     paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
-    issues = paginator.get_page(page_number)
+    page_obj = paginator.get_page(page_number)
     form = IssueForm()
-    return render(request, 'dept_head_dashboard.html', {'issues': issues, 'form': form})
+    return render(request, 'dept_head_dashboard.html', {'page_obj': page_obj, 'form': form, 'show_navbar': True})
