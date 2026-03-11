@@ -1,73 +1,32 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Approval Result - Issue Management System</title>
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .result-container {
-            background: white;
-            padding: 3rem 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
-        }
-        .result-icon {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-        }
-        .result-title {
-            font-size: 1.6rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        .result-title.success { color: #28a745; }
-        .result-title.error { color: #dc3545; }
-        .result-message {
-            color: #555;
-            line-height: 1.6;
-            margin-bottom: 1.5rem;
-        }
-        .home-link {
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-        .home-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .home-link a:hover {
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body>
-    <div class="result-container">
-        {% if success %}
-            <div class="result-icon">&#9989;</div>
-            <h2 class="result-title success">Done</h2>
-        {% else %}
-            <div class="result-icon">&#10060;</div>
-            <h2 class="result-title error">Error</h2>
-        {% endif %}
-        <p class="result-message">{{ message }}</p>
-        <div class="home-link">
-            <p><a href="{% url 'home' %}">&larr; Go to Home</a></p>
+{% extends "base.html" %}
+
+{% block title %}Approval Result{% endblock %}
+
+{% block main_class %}auth-wrapper flex-column{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            {% if success %}
+            <h4><i class="bi bi-check-circle me-2"></i>Done</h4>
+            {% else %}
+            <h4><i class="bi bi-x-circle me-2"></i>Error</h4>
+            {% endif %}
+        </div>
+        <div class="card-body p-4 text-center">
+            {% if success %}
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 3rem;"></i>
+            {% else %}
+                <i class="bi bi-x-circle-fill text-danger" style="font-size: 3rem;"></i>
+            {% endif %}
+            <p class="mt-3 text-muted">{{ message }}</p>
+            <a href="{% url 'home' %}" class="text-decoration-none fw-semibold" style="color: var(--ims-primary);">
+                <i class="bi bi-arrow-left me-1"></i>Go to Home
+            </a>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

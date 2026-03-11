@@ -1,131 +1,50 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Issue Management System</title>
-    <link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-        .register-container {
-            background: white;
-            padding: 3rem 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-        .register-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 1.5rem;
-        }
-        .form-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #555;
-        }
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            box-sizing: border-box;
-        }
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-        .btn-submit {
-            background: #007bff;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            width: 100%;
-            margin-top: 1rem;
-            transition: background 0.3s ease;
-        }
-        .btn-submit:hover {
-            background: #0056b3;
-        }
-        .login-link {
-            margin-top: 1.5rem;
-            font-size: 0.9rem;
-        }
-        .login-link a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-        .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 1rem;
-            border-radius: 5px;
-            margin-bottom: 1.5rem;
-            border: 1px solid #f5c6cb;
-            text-align: left;
-        }
-    </style>
-</head>
-<body>
-    <div class="register-container">
-        <h2 class="register-title">Create an Account</h2>
-        {% if form.errors %}
-            <div class="error-message">
-                {% for field in form %}
-                    {% for error in field.errors %}
-                        <p>{{ error }}</p>
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block main_class %}auth-wrapper flex-column{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block content %}
+<div class="auth-card">
+    <div class="card shadow-sm">
+        <div class="card-header">
+            <h4><i class="bi bi-person-plus me-2"></i>Create an Account</h4>
+        </div>
+        <div class="card-body p-4">
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <p class="mb-0">{{ error }}</p>
+                        {% endfor %}
                     {% endfor %}
-                {% endfor %}
-                {% for error in form.non_field_errors %}
-                    <p>{{ error }}</p>
-                {% endfor %}
-            </div>
-        {% endif %}
-        <form method="post">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_email">Email</label>
-                <input type="email" name="email" id="id_email" required value="{{ form.data.email|default:'' }}">
-            </div>
-            <div class="form-group">
-                <label for="id_password">Password</label>
-                <input type="password" name="password" id="id_password" required>
-            </div>
-            <div class="form-group">
-                <label for="id_password2">Confirm Password</label>
-                <input type="password" name="password2" id="id_password2" required>
-            </div>
-            <button type="submit" class="btn-submit">Register</button>
-        </form>
-        <div class="login-link">
-            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+                    {% for error in form.non_field_errors %}
+                        <p class="mb-0">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_email" class="form-label fw-semibold">Email</label>
+                    <input type="email" name="email" id="id_email" class="form-control" required value="{{ form.data.email|default:'' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="id_password" class="form-label fw-semibold">Password</label>
+                    <input type="password" name="password" id="id_password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_password2" class="form-label fw-semibold">Confirm Password</label>
+                    <input type="password" name="password2" id="id_password2" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-ims-primary w-100 mt-2">Register</button>
+            </form>
+            <p class="text-center mt-3 mb-0">
+                <small>Already have an account? <a href="{% url 'login' %}" class="text-decoration-none fw-semibold" style="color: var(--ims-primary);">Login here</a></small>
+            </p>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
