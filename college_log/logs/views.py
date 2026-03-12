@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.db import IntegrityError, DatabaseError, transaction
@@ -18,6 +18,7 @@ from django.db.models import Case, IntegerField, Q, When
 from .models import Issue, Comment, UserProfile, Device, Log
 from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm
 from .sla import set_sla_deadlines, check_response_sla, check_resolution_sla
+from .utils import get_issue_timeline
 from django.utils import timezone
 
 
@@ -552,4 +553,30 @@ def dept_head_dashboard(request):
         'filter_query': filter_query,
         'active_filter_count': active_filter_count,
         'device_type_choices': Issue.DEVICE_TYPES,
+    })
+
+
+@login_required
+def issue_timeline(request, issue_id):
+    issue = get_object_or_404(Issue, pk=issue_id)
+    user = request.user
+
+    # Permission: superuser, owning dept_head, or engineer who can see it
+    if not user.is_superuser:
+        try:
+            role = user.userprofile.role
+        except UserProfile.DoesNotExist:
+            raise Http404
+        if role == 'dept_head' and issue.dept_head != user:
+            raise Http404
+        elif role == 'engineer':
+            if not _engineer_visible_issues(user).filter(pk=issue.pk).exists():
+                raise Http404
+
+    timeline = get_issue_timeline(issue)
+
+    return render(request, 'issue_timeline.html', {
+        'issue': issue,
+        'timeline': timeline,
+        'show_navbar': True,
     })
