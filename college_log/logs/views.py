@@ -14,7 +14,7 @@ from django.http import HttpResponseRedirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.db import IntegrityError, DatabaseError, transaction
-from django.db.models import Q
+from django.db.models import Case, IntegerField, Q, When
 from .models import Issue, Comment, UserProfile, Device, Log
 from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm
 from .sla import set_sla_deadlines, check_response_sla, check_resolution_sla
@@ -85,6 +85,68 @@ def _engineer_visible_issues(user):
         Q(status__in=['open', 'in_progress', 'resolved']) |
         Q(comments__engineer=user)
     ).distinct()
+
+
+ALLOWED_SORTS = {'-created_at', 'created_at', '-priority', 'priority', 'status', '-status'}
+
+PRIORITY_ORDER = Case(
+    When(priority='critical', then=0),
+    When(priority='high', then=1),
+    When(priority='medium', then=2),
+    When(priority='low', then=3),
+    output_field=IntegerField(),
+)
+
+
+def _apply_filters(request, queryset):
+    """Apply GET-based search/filter/sort. Returns (queryset, filter_query_string, active_filter_count)."""
+    params = request.GET.copy()
+    active = 0
+
+    q = params.get('q', '').strip()
+    if q:
+        queryset = queryset.filter(description__icontains=q)
+        active += 1
+
+    status = params.get('status', '')
+    if status:
+        queryset = queryset.filter(status=status)
+        active += 1
+
+    priority = params.get('priority', '')
+    if priority:
+        queryset = queryset.filter(priority=priority)
+        active += 1
+
+    device_type = params.get('device_type', '')
+    if device_type:
+        queryset = queryset.filter(device_type=device_type)
+        active += 1
+
+    date_from = params.get('date_from', '')
+    if date_from:
+        queryset = queryset.filter(created_at__date__gte=date_from)
+        active += 1
+
+    date_to = params.get('date_to', '')
+    if date_to:
+        queryset = queryset.filter(created_at__date__lte=date_to)
+        active += 1
+
+    sort = params.get('sort', '-created_at')
+    if sort not in ALLOWED_SORTS:
+        sort = '-created_at'
+    if sort in ('-priority', 'priority'):
+        order = 'priority_order' if sort == '-priority' else '-priority_order'
+        queryset = queryset.annotate(priority_order=PRIORITY_ORDER).order_by(order)
+    else:
+        queryset = queryset.order_by(sort)
+
+    # Build filter_query for pagination links (strip page param)
+    params.pop('page', None)
+    filter_query = params.urlencode()
+
+    return queryset, filter_query, active
 
 def home(request):
     if not request.user.is_authenticated:
@@ -417,11 +479,18 @@ def engineer_dashboard(request):
             messages.success(request, 'Comment deleted successfully.')
             return redirect('engineer_dashboard')
 
-    issues_list = _engineer_visible_issues(request.user).order_by('-created_at').prefetch_related('comments__engineer')
+    issues_list = _engineer_visible_issues(request.user).prefetch_related('comments__engineer')
+    issues_list, filter_query, active_filter_count = _apply_filters(request, issues_list)
     paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'engineer_dashboard.html', {'page_obj': page_obj, 'show_navbar': True})
+    return render(request, 'engineer_dashboard.html', {
+        'page_obj': page_obj,
+        'show_navbar': True,
+        'filter_query': filter_query,
+        'active_filter_count': active_filter_count,
+        'device_type_choices': Issue.DEVICE_TYPES,
+    })
 
 
 @login_required
@@ -470,9 +539,17 @@ def dept_head_dashboard(request):
                 )
             return redirect('dept_head_dashboard')
 
-    issues_list = Issue.objects.filter(dept_head=request.user).order_by('-created_at').prefetch_related('comments__engineer')
+    issues_list = Issue.objects.filter(dept_head=request.user).prefetch_related('comments__engineer')
+    issues_list, filter_query, active_filter_count = _apply_filters(request, issues_list)
     paginator = Paginator(issues_list, ITEMS_PER_PAGE)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     form = IssueForm()
-    return render(request, 'dept_head_dashboard.html', {'page_obj': page_obj, 'form': form, 'show_navbar': True})
+    return render(request, 'dept_head_dashboard.html', {
+        'page_obj': page_obj,
+        'form': form,
+        'show_navbar': True,
+        'filter_query': filter_query,
+        'active_filter_count': active_filter_count,
+        'device_type_choices': Issue.DEVICE_TYPES,
+    })
