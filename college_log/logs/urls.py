@@ -12,4 +12,5 @@ urlpatterns = [
     path('engineer/dashboard/', views.engineer_dashboard, name='engineer_dashboard'),
     path('dept_head/dashboard/', views.dept_head_dashboard, name='dept_head_dashboard'),
     path('issues/<int:issue_id>/timeline/', views.issue_timeline, name='issue_timeline'),
+    path('activity/', views.activity_log, name='activity_log'),
 ]

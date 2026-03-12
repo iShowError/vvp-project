@@ -580,3 +580,91 @@ def issue_timeline(request, issue_id):
         'timeline': timeline,
         'show_navbar': True,
     })
+
+
+@login_required
+def activity_log(request):
+    """Global activity feed — superuser sees all, others see role-scoped activity."""
+    user = request.user
+
+    if user.is_superuser:
+        issues = Issue.objects.all()
+    else:
+        try:
+            role = user.userprofile.role
+        except UserProfile.DoesNotExist:
+            raise Http404
+        if role == 'engineer':
+            issues = _engineer_visible_issues(user)
+        else:
+            issues = Issue.objects.filter(dept_head=user)
+
+    issue_ids = issues.values_list('id', flat=True)
+    events = []
+
+    # Issue history (last 100 records)
+    issue_history = Issue.history.filter(
+        id__in=issue_ids
+    ).select_related('history_user').order_by('-history_date')[:100]
+
+    for record in issue_history:
+        if record.history_type == '+':
+            events.append({
+                'type': 'issue_created',
+                'icon': 'bi-plus-circle-fill',
+                'color': 'primary',
+                'message': f'New issue: {record.device_type}',
+                'detail': (record.description or '')[:100],
+                'user': record.history_user,
+                'timestamp': record.history_date,
+                'issue_id': record.id,
+            })
+        elif record.history_type == '~':
+            prev = record.prev_record
+            if prev:
+                delta = record.diff_against(prev)
+                for change in delta.changes:
+                    if change.field in ('status', 'priority'):
+                        events.append({
+                            'type': f'{change.field}_changed',
+                            'icon': 'bi-arrow-repeat',
+                            'color': 'info',
+                            'message': f'Issue #{record.id}: {change.field.title()} → {change.new}',
+                            'detail': f'Changed from {change.old} to {change.new}',
+                            'user': record.history_user,
+                            'timestamp': record.history_date,
+                            'issue_id': record.id,
+                        })
+
+    # Comment history (last 100 records)
+    comment_history = Comment.history.filter(
+        issue_id__in=issue_ids
+    ).select_related('history_user').order_by('-history_date')[:100]
+
+    for record in comment_history:
+        label = {'+': 'Comment added', '~': 'Comment edited', '-': 'Comment deleted'}.get(
+            record.history_type, 'Comment'
+        )
+        events.append({
+            'type': 'comment',
+            'icon': 'bi-chat-dots',
+            'color': 'secondary',
+            'message': f'{label} on issue #{record.issue_id}',
+            'detail': (record.text or '')[:100],
+            'user': record.history_user,
+            'timestamp': record.history_date,
+            'issue_id': record.issue_id,
+        })
+
+    events.sort(key=lambda x: x['timestamp'], reverse=True)
+    events = events[:50]
+
+    paginator = Paginator(events, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'activity_log.html', {
+        'page_obj': page_obj,
+        'show_navbar': True,
+        'is_superuser': user.is_superuser,
+    })

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Activity Log{% endblock %}
+
+{% block extra_css %}
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 2.5rem;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.85rem;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: var(--ims-border);
+        border-radius: 2px;
+    }
+    .timeline-item {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+    .timeline-marker {
+        position: absolute;
+        left: -2.5rem;
+        top: 0.15rem;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        color: #fff;
+        z-index: 1;
+    }
+    .timeline-marker.bg-primary   { background-color: var(--ims-primary) !important; }
+    .timeline-marker.bg-info      { background-color: var(--ims-primary) !important; opacity: .85; }
+    .timeline-marker.bg-warning   { background-color: var(--ims-accent) !important; }
+    .timeline-marker.bg-secondary { background-color: var(--ims-secondary) !important; }
+    .timeline-marker.bg-muted     { background-color: var(--ims-muted) !important; }
+    .timeline-marker.bg-danger    { background-color: var(--ims-danger) !important; }
+    .timeline-body {
+        background: var(--ims-surface);
+        border: 1px solid var(--ims-border);
+        border-radius: .5rem;
+        padding: .75rem 1rem;
+    }
+    .timeline-body .text-muted {
+        font-size: .8rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 800px;">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="mb-0"><i class="bi bi-activity"></i> Activity Log</h4>
+        {% if is_superuser %}
+        <span class="badge bg-ims-primary" style="background-color: var(--ims-primary);">Global View</span>
+        {% endif %}
+    </div>
+
+    {% if page_obj %}
+    <div class="timeline">
+        {% for event in page_obj %}
+        <div class="timeline-item">
+            <div class="timeline-marker bg-{{ event.color }}">
+                <i class="bi {{ event.icon }}"></i>
+            </div>
+            <div class="timeline-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <div><strong>{{ event.message }}</strong></div>
+                        {% if event.detail %}
+                        <p class="mb-0 text-muted small mt-1">{{ event.detail }}</p>
+                        {% endif %}
+                        <small class="text-muted">
+                            {% if event.user %}{{ event.user.get_full_name|default:event.user.username }}{% else %}System{% endif %}
+                        </small>
+                    </div>
+                    <div class="text-end text-nowrap ms-3">
+                        <small class="text-muted">{{ event.timestamp|date:"M d, Y H:i" }}</small>
+                        {% if event.issue_id %}
+                        <br>
+                        <a href="{% url 'issue_timeline' event.issue_id %}" class="btn btn-sm btn-outline-secondary mt-1" title="View Timeline">
+                            <i class="bi bi-clock-history"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% include "includes/pagination.html" %}
+    {% else %}
+    <p class="text-muted">No activity recorded yet.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
