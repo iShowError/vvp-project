@@ -9,7 +9,7 @@
                 <span class="badge rounded-pill bg-primary ms-2 active-count">{{ active_filter_count }} active</span>
             {% endif %}
         </h6>
-        <i class="bi bi-chevron-down"></i>
+        <i class="bi bi-chevron-down filter-chevron"></i>
     </div>
     <div class="collapse {% if active_filter_count %}show{% endif %}" id="filterCollapse">
         <div class="card-body py-3">
@@ -95,3 +95,9 @@
         </div>
     </div>
 </div>
+{% if active_filter_count %}
+<div class="text-muted mb-3" style="font-size: 0.85rem;">
+    <i class="bi bi-info-circle me-1"></i>
+    Showing {{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} matching your filters.
+</div>
+{% endif %}

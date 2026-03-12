@@ -105,6 +105,10 @@
         .filter-bar .form-label { font-size: 0.8rem; font-weight: 600; color: var(--ims-muted); text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.25rem; }
         .filter-bar .form-control, .filter-bar .form-select { font-size: 0.875rem; }
         .filter-bar .active-count { font-size: 0.75rem; }
+        .filter-bar .card-header { cursor: pointer; transition: background-color 0.15s; }
+        .filter-bar .card-header:hover { background-color: #f0eeeb !important; }
+        .filter-bar .filter-chevron { transition: transform 0.25s ease; }
+        .filter-bar .card-header[aria-expanded="true"] .filter-chevron { transform: rotate(180deg); }
 
         /* Auth pages centered layout */
         .auth-wrapper {
