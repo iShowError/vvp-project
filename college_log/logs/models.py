@@ -50,16 +50,33 @@ class Issue(models.Model):
         ("closed", "Closed"),
     ]
     
+    PRIORITY_CHOICES = [
+        ('low', 'Low'),
+        ('medium', 'Medium'),
+        ('high', 'High'),
+        ('critical', 'Critical'),
+    ]
+    
     device_type = models.CharField(max_length=30, choices=DEVICE_TYPES)
     description = models.TextField()
+    priority = models.CharField(max_length=10, choices=PRIORITY_CHOICES, default='medium')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="open")
     dept_head = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="issues")
+    
+    # SLA tracking fields
+    first_response_at = models.DateTimeField(null=True, blank=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    sla_response_deadline = models.DateTimeField(null=True, blank=True)
+    sla_resolution_deadline = models.DateTimeField(null=True, blank=True)
+    sla_response_breached = models.BooleanField(default=False)
+    sla_resolution_breached = models.BooleanField(default=False)
+    
     history = HistoricalRecords()
     
     def __str__(self):
-        return f"{self.device_type} - {self.status} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
+        return f"{self.device_type} [{self.priority}] - {self.status} ({self.created_at.strftime('%Y-%m-%d %H:%M')})"
     
     def get_comments_count(self):
         return self.comments.count()

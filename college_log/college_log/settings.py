@@ -254,6 +254,26 @@ JAZZMIN_SETTINGS = {
     "language_chooser": False,
 }
 
+# SLA Rules — max hours per priority level
+SLA_RULES = {
+    'critical': {
+        'first_response_hours': 2,
+        'resolution_hours': 8,
+    },
+    'high': {
+        'first_response_hours': 4,
+        'resolution_hours': 24,
+    },
+    'medium': {
+        'first_response_hours': 8,
+        'resolution_hours': 48,
+    },
+    'low': {
+        'first_response_hours': 24,
+        'resolution_hours': 168,  # 7 days
+    },
+}
+
 JAZZMIN_UI_TWEAKS = {
     "navbar_small_text": False,
     "footer_small_text": False,
