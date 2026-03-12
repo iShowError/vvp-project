@@ -94,6 +94,9 @@
                             {% else %}
                                 <span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Closed</span>
                             {% endif %}
+                            <a href="{% url 'issue_timeline' issue.id %}" class="btn btn-sm btn-outline-secondary mt-1" title="View Timeline">
+                                <i class="bi bi-clock-history"></i>
+                            </a>
                         </td>
                     </tr>
                     {% empty %}

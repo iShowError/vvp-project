@@ -21,6 +21,7 @@
                         <th>Priority</th>
                         <th>SLA</th>
                         <th>Date</th>
+                        <th></th>
                         <th style="min-width: 320px;">Comments</th>
                     </tr>
                 </thead>
@@ -47,6 +48,11 @@
                             {% endif %}
                         </td>
                         <td class="text-nowrap">{{ issue.created_at|date:"M d, Y H:i" }}</td>
+                        <td>
+                            <a href="{% url 'issue_timeline' issue.id %}" class="btn btn-sm btn-outline-secondary" title="View Timeline">
+                                <i class="bi bi-clock-history"></i>
+                            </a>
+                        </td>
                         <td>
                             <div class="bg-light rounded p-2">
                                 {% for comment in issue.comments.all|slice:':5' %}
@@ -115,7 +121,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-4">
+                        <td colspan="8" class="text-center text-muted py-4">
                             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                             No issues assigned to you yet.
                         </td>

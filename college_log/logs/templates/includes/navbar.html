@@ -29,8 +29,11 @@
                                 <i class="bi bi-clipboard-data"></i> Dashboard
                             </a>
                         </li>
-                    {% endif %}
-                {% endif %}
+                    {% endif %}                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'activity_log' %}">
+                            <i class="bi bi-activity"></i> Activity Log
+                        </a>
+                    </li>                {% endif %}
             </ul>
             <ul class="navbar-nav">
                 {% if user.is_authenticated %}
