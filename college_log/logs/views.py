@@ -17,6 +17,7 @@ from django.db import IntegrityError, DatabaseError, transaction
 from django.db.models import Q
 from .models import Issue, Comment, UserProfile, Device, Log
 from .forms import RegistrationForm, LoginForm, IssueForm, UpdateIssueForm
+from .sla import set_sla_deadlines, check_response_sla, check_resolution_sla
 from django.utils import timezone
 
 
@@ -379,6 +380,9 @@ def engineer_dashboard(request):
             issue = get_object_or_404(_engineer_visible_issues(request.user), id=issue_id)
             if issue.status not in ['closed', 'completed', 'resolved']:
                 Comment.objects.create(issue=issue, engineer=request.user, text=comment_text)
+                # Track first response for SLA
+                if not issue.first_response_at:
+                    check_response_sla(issue)
                 messages.success(request, 'Comment added successfully.')
                 # Send email notification for new comment
                 send_mail(
@@ -436,6 +440,7 @@ def dept_head_dashboard(request):
                 issue = form.save(commit=False)
                 issue.dept_head = request.user
                 issue.save()
+                set_sla_deadlines(issue)
                 messages.success(request, 'Issue submitted successfully!')
                 return redirect('dept_head_dashboard')
         elif 'update_issue_id' in request.POST:
@@ -448,6 +453,9 @@ def dept_head_dashboard(request):
             if form.is_valid():
                 old_status = issue.status
                 issue = form.save()
+                # Track resolution for SLA
+                if issue.status in ('resolved', 'completed') and old_status not in ('resolved', 'completed', 'closed'):
+                    check_resolution_sla(issue)
                 if issue.status == 'completed':
                     messages.success(request, 'Issue closed successfully.')
                 else:
