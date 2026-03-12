@@ -52,14 +52,18 @@ class IssueForm(forms.ModelForm):
     
     class Meta:
         model = Issue
-        fields = ['device_type', 'description']
+        fields = ['device_type', 'priority', 'description']
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Enforce choices at form level using model choices
         self.fields['device_type'] = forms.ChoiceField(
             choices=Issue.DEVICE_TYPES,
-            widget=forms.Select(attrs={'class': 'form-control'})
+            widget=forms.Select(attrs={'class': 'form-select'})
+        )
+        self.fields['priority'] = forms.ChoiceField(
+            choices=Issue.PRIORITY_CHOICES,
+            widget=forms.Select(attrs={'class': 'form-select'})
         )
         self.fields['description'] = forms.CharField(
             widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4})

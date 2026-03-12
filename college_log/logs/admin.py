@@ -45,8 +45,8 @@ class LogAdmin(SimpleHistoryAdmin):
 
 @admin.register(Issue)
 class IssueAdmin(SimpleHistoryAdmin):
-    list_display = ("id", "device_type", "status", "dept_head_email", "created_at")
-    list_filter = ("status", "device_type", "created_at")
+    list_display = ("id", "device_type", "priority", "status", "sla_response_breached", "sla_resolution_breached", "dept_head_email", "created_at")
+    list_filter = ("status", "priority", "device_type", "sla_response_breached", "sla_resolution_breached", "created_at")
     search_fields = ("description", "dept_head__email", "dept_head__username")
     readonly_fields = ("created_at",)
     date_hierarchy = 'created_at'

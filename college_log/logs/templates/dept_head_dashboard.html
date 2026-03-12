@@ -33,6 +33,7 @@
                         <th>Device</th>
                         <th>Description</th>
                         <th>Status</th>
+                        <th>Priority</th>
                         <th>Date</th>
                         <th style="min-width: 300px;">Comments</th>
                         <th>Action</th>
@@ -44,6 +45,7 @@
                         <td>{{ issue.device_type }}</td>
                         <td>{{ issue.description }}</td>
                         <td><span class="badge badge-{{ issue.status|lower }}">{{ issue.status|title }}</span></td>
+                        <td><span class="badge badge-{{ issue.priority }}">{{ issue.get_priority_display }}</span></td>
                         <td class="text-nowrap">{{ issue.created_at|date:"M d, Y H:i" }}</td>
                         <td>
                             <div class="bg-light rounded p-2">
@@ -77,7 +79,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="7" class="text-center text-muted py-4">
                             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                             No issues reported yet. Submit one above!
                         </td>
