@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load sla_tags %}
 
 {% block title %}Engineer Dashboard{% endblock %}
 
@@ -16,17 +17,33 @@
                         <th>Description</th>
                         <th>Status</th>
                         <th>Priority</th>
+                        <th>SLA</th>
                         <th>Date</th>
                         <th style="min-width: 320px;">Comments</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for issue in page_obj %}
-                    <tr>
+                    {% get_issue_sla issue as sla %}
+                    <tr class="{% if sla.response == 'breached' or sla.resolution == 'breached' %}sla-row-breached{% elif sla.response == 'warning' or sla.resolution == 'warning' %}sla-row-warning{% endif %}">
                         <td>{{ issue.device_type }}</td>
                         <td>{{ issue.description }}</td>
                         <td><span class="badge badge-{{ issue.status|lower }}">{{ issue.status|title }}</span></td>
                         <td><span class="badge badge-{{ issue.priority }}">{{ issue.get_priority_display }}</span></td>
+                        <td class="sla-indicator">
+                            {% if issue.sla_response_deadline %}
+                            <div class="sla-{{ sla.response }}">
+                                {% if sla.response == 'ok' %}<i class="bi bi-check-circle-fill"></i>{% elif sla.response == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>{% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                Resp: {% if issue.first_response_at %}{% if issue.sla_response_breached %}Late{% else %}Done{% endif %}{% elif sla.response == 'breached' %}OVERDUE{% else %}{{ sla.response_remaining|format_td }}{% endif %}
+                            </div>
+                            <div class="sla-{{ sla.resolution }}">
+                                {% if sla.resolution == 'ok' %}<i class="bi bi-check-circle-fill"></i>{% elif sla.resolution == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>{% else %}<i class="bi bi-x-circle-fill"></i>{% endif %}
+                                Res: {% if issue.resolved_at %}{% if issue.sla_resolution_breached %}Late{% else %}Done{% endif %}{% elif sla.resolution == 'breached' %}OVERDUE{% else %}{{ sla.resolution_remaining|format_td }}{% endif %}
+                            </div>
+                            {% else %}
+                            <span class="text-muted">&mdash;</span>
+                            {% endif %}
+                        </td>
                         <td class="text-nowrap">{{ issue.created_at|date:"M d, Y H:i" }}</td>
                         <td>
                             <div class="bg-light rounded p-2">
@@ -96,7 +113,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">
+                        <td colspan="7" class="text-center text-muted py-4">
                             <i class="bi bi-inbox fs-1 d-block mb-2"></i>
                             No issues assigned to you yet.
                         </td>
