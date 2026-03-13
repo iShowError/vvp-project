@@ -5,6 +5,10 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from simple_history.admin import SimpleHistoryAdmin
+import logging
+
+logger = logging.getLogger(__name__)
+
 from .models import Device, Log, Issue, Comment, UserProfile
 
 # Inline for UserProfile to be edited alongside User
@@ -110,8 +114,9 @@ class UserProfileAdmin(admin.ModelAdmin):
                     [user.email],
                     html_message=html_message,
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to send approval email to {user.email}: {e}")
+                self.message_user(request, f"User {user.email} approved, but the notification email failed to send.", 'warning')
             count += 1
         self.message_user(request, f'{count} user(s) approved and notified.')
 
@@ -134,8 +139,10 @@ class UserProfileAdmin(admin.ModelAdmin):
                     [email],
                     html_message=html_message,
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to send rejection email to {email}: {e}")
+                self.message_user(request, f"User {email} rejected, but the notification email failed to send.", 'warning')
+
             # user.delete() # Rejection should not be a destructive action
             count += 1
         self.message_user(request, f'{count} user(s) rejected and notified.')
