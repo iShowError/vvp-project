@@ -78,7 +78,7 @@ class CommentAdmin(SimpleHistoryAdmin):
     text_preview.short_description = 'Comment Text'
 
 @admin.register(UserProfile)
-class UserProfileAdmin(admin.ModelAdmin):
+class UserProfileAdmin(SimpleHistoryAdmin):
     list_display = ("user", "role", "approval_status", "user_email", "user_date_joined")
     list_filter = ("role", "approval_status")
     search_fields = ("user__email", "user__username", "user__first_name", "user__last_name")
