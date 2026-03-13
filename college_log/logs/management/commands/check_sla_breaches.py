@@ -16,33 +16,39 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         now = timezone.now()
-        response_count = 0
-        resolution_count = 0
 
-        # Response SLA breaches: no first response yet, deadline passed
-        response_breached = Issue.objects.filter(
+        # Response SLA breaches
+        response_breached_qs = Issue.objects.filter(
             first_response_at__isnull=True,
             sla_response_deadline__lt=now,
             sla_response_breached=False,
             status='open',
         )
-        for issue in response_breached:
+        response_breached_issues = list(response_breached_qs)
+        for issue in response_breached_issues:
             issue.sla_response_breached = True
-            issue.save(update_fields=['sla_response_breached'])
             self._send_breach_email(issue, 'response', now)
-            response_count += 1
+        
+        if response_breached_issues:
+            Issue.objects.bulk_update(response_breached_issues, ['sla_response_breached'])
+        
+        response_count = len(response_breached_issues)
 
-        # Resolution SLA breaches: not resolved, deadline passed
-        resolution_breached = Issue.objects.filter(
+        # Resolution SLA breaches
+        resolution_breached_qs = Issue.objects.filter(
             status__in=['open', 'in_progress'],
             sla_resolution_deadline__lt=now,
             sla_resolution_breached=False,
         )
-        for issue in resolution_breached:
+        resolution_breached_issues = list(resolution_breached_qs)
+        for issue in resolution_breached_issues:
             issue.sla_resolution_breached = True
-            issue.save(update_fields=['sla_resolution_breached'])
             self._send_breach_email(issue, 'resolution', now)
-            resolution_count += 1
+            
+        if resolution_breached_issues:
+            Issue.objects.bulk_update(resolution_breached_issues, ['sla_resolution_breached'])
+            
+        resolution_count = len(resolution_breached_issues)
 
         total = response_count + resolution_count
         self.stdout.write(
