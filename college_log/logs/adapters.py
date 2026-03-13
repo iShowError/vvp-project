@@ -30,6 +30,8 @@ class MySocialAccountAdapter(DefaultSocialAccountAdapter):
             raise ImmediateHttpResponse(redirect('login'))
 
         user = super().save_user(request, sociallogin, form)
+        user.is_active = False
+        user.save()
         
         username_part = email.split('@')[0]
         valid_depts = ['it', 'ce', 'bt', 'me', 'ch', 'ec', 'cv']
