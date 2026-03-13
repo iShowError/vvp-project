@@ -136,6 +136,6 @@ class UserProfileAdmin(admin.ModelAdmin):
                 )
             except Exception:
                 pass
-            user.delete()
+            # user.delete() # Rejection should not be a destructive action
             count += 1
         self.message_user(request, f'{count} user(s) rejected and notified.')
