@@ -13,27 +13,19 @@ def set_sla_deadlines(issue):
 
 
 def check_response_sla(issue):
-    """Called when the first engineer comment is added. Records response time and checks breach."""
+    """Called when the first engineer comment is added. Records response time."""
     if issue.first_response_at:
         return  # already responded
     issue.first_response_at = timezone.now()
-    update_fields = ['first_response_at']
-    if issue.sla_response_deadline and issue.first_response_at > issue.sla_response_deadline:
-        issue.sla_response_breached = True
-        update_fields.append('sla_response_breached')
-    issue.save(update_fields=update_fields)
+    issue.save(update_fields=['first_response_at'])
 
 
 def check_resolution_sla(issue):
-    """Called when issue status changes to resolved/completed. Records resolution time and checks breach."""
+    """Called when issue status changes to resolved/completed. Records resolution time."""
     if issue.resolved_at:
         return  # already recorded
     issue.resolved_at = timezone.now()
-    update_fields = ['resolved_at']
-    if issue.sla_resolution_deadline and issue.resolved_at > issue.sla_resolution_deadline:
-        issue.sla_resolution_breached = True
-        update_fields.append('sla_resolution_breached')
-    issue.save(update_fields=update_fields)
+    issue.save(update_fields=['resolved_at'])
 
 
 def get_sla_status(issue):
