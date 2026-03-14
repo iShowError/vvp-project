@@ -97,7 +97,12 @@ class Comment(models.Model):
     def __str__(self):
         engineer_email = self.engineer.email if self.engineer else "Unknown Engineer"
         return f"Comment by {engineer_email} on Issue #{self.issue.id}"
-    
+    def save(self, *args, **kwargs):
+        # Prevent modification if the related issue is closed/completed/resolved
+        if self.issue.status in ("closed", "completed", "resolved"):
+            from django.core.exceptions import ValidationError
+            raise ValidationError("Cannot modify comment on a closed/completed/resolved issue.")
+        super().save(*args, **kwargs)
     class Meta:
         ordering = ['-created_at']
         verbose_name = "Comment"
